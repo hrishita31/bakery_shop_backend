@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+//this is product model
 const productSchema = new mongoose.Schema(
     {
         category: { type: String, required: true },

@@ -1,0 +1,24 @@
+const MISSING_PARAMETER = 'missing required parameters';
+const PRODUCT_NOT_FOUND = 'product not found';
+const CART_NOT_UPDATED = 'cart not updated';
+const UPDATED_CART_NOT_FOUND = 'updated cart not found';
+const CART_UPDATED = 'cart updated successfully';
+const USER_NOT_FOUND = 'user not found';
+const INVALID_CREDENTIALS = 'invalid credentials';
+const LOGIN_SUCCESSFUL = 'login successful';
+const MISSING_NEW_PASSWORD = 'missing new password';
+const PASSWORD_UPDATED = 'password updated successfully';
+const NO_TOKEN = 'no token, access denied';
+const INVALID_TOKEN = 'Invalid or expired token';
+const INVALID_PHONE_NUMBER = 'phone number should be of length 10';
+const INVALID_EMAIL = 'invalid email id';
+const INVALID_PASSWORD = 'password should be at least 8 characters, contain at least one uppercase letter, one lower case letter and a special symbol';
+const EMPTY_CART = 'cart is empty';
+const NO_FAVS = 'nothing added to favorites';
+const ALREADY_IN_FAVS = 'product already in favorites';
+const ALREADY_IN_CART = 'product already in cart';
+const CART_EMPTY = 'cart is empty';
+const PRODUCT_PRESENT = 'product already present';
+const ENTER_NEW_USERNAME = 'username already in use, enter new username';
+
+export { MISSING_PARAMETER, PRODUCT_NOT_FOUND, CART_NOT_UPDATED, UPDATED_CART_NOT_FOUND, CART_UPDATED, USER_NOT_FOUND,INVALID_CREDENTIALS, LOGIN_SUCCESSFUL, MISSING_NEW_PASSWORD, PASSWORD_UPDATED, NO_TOKEN, INVALID_TOKEN, INVALID_PHONE_NUMBER, INVALID_EMAIL, INVALID_PASSWORD, EMPTY_CART, NO_FAVS,ALREADY_IN_FAVS,ALREADY_IN_CART, CART_EMPTY,PRODUCT_PRESENT ,ENTER_NEW_USERNAME};

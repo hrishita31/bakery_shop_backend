@@ -20,7 +20,7 @@ const validateUser = async (username) => {
     return await User.findOne({ username });
 };
 
-const updatePassword = async(username, newPassword) => {
+const  updatePassword = async(username, {newPassword}) => {
     return await User.findOneAndUpdate({username}, {password:newPassword}, {new:true});
 };
 

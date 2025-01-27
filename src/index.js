@@ -1,7 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import multer from 'multer';
+// import multer from 'multer';
+import cors from 'cors';
 
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
@@ -10,6 +11,7 @@ import teamRoutes from './routes/teamRoutes.js';
 import testimonyRoutes from './routes/testimonialRoutes.js';
 
 const app = express();
+app.use(cors());
 
 dotenv.config();
 

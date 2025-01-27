@@ -4,7 +4,7 @@ import { addTestimony } from '../service/testimonialService.js';
 
 const newTestimony = async(req, res) => {
     try{
-        const {name, location, rating, quote} = req.query;
+        const {name, location, rating, quote} = req.body;
         if(!name || !location || !rating || !quote){
             res.status(404).json({success: false, message: MISSING_PARAMETER});
 

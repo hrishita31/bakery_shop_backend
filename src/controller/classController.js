@@ -17,7 +17,7 @@ const classOptions = async(req, res) => {
 
 const newClassStudent = async(req, res) => {
     try{
-        const {name, phoneNumber, classTime, branch} = req.query;
+        const {name, phoneNumber, classTime, branch} = req.body;
 
         if(!name || !phoneNumber || !classTime || !branch){
             return res.status(404).json({success:false, message: MISSING_PARAMETER });

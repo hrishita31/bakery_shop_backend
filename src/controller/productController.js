@@ -5,7 +5,7 @@ import { CART_NOT_UPDATED, MISSING_PARAMETER, PRODUCT_NOT_FOUND, EMPTY_CART, NO_
 
 const createProduct = async(req, res) => {
     try{
-        const {category, product, dessertName, price, rating} = req.query;
+        const {category, product, dessertName, price, rating} = req.body;
 
         if(!category || !product || !price){
             return res.status(400).json({success:false, message:MISSING_PARAMETER,
@@ -26,8 +26,7 @@ const createProduct = async(req, res) => {
 
 const updatePrice = async(req, res) => {
     try{
-        const {dessertName} = req.params;
-        const {newPrice} = req.body;
+        const {dessertName, newPrice} = req.body;
 
         if(!dessertName){
             return res.status(400).json({success:false, message:MISSING_PARAMETER});
@@ -52,7 +51,7 @@ const updatePrice = async(req, res) => {
 const getProduct = async(req, res) => {
     try{
         // const {category} = findProduct(req.query);
-        const category = await findProduct(req.params.category);
+        const category = await findProduct(req.body.category);
         if(!category){
             res.status(404).json({success:false, message:PRODUCT_NOT_FOUND});
         }
@@ -64,12 +63,12 @@ const getProduct = async(req, res) => {
 
 const searchProduct = async(req, res) => {
     try{
-        const desserts = await searchDessert(req.params.product);
+        const product = await searchDessert(req.body.product);
 
-        if(!desserts){
+        if(!product){
             res.status(404).json({success:false, message:MISSING_PARAMETER})
         }
-        res.status(201).json({success:true, message:desserts});
+        res.status(200).json({success:true, message:product});
     }catch(error){
         res.status(500).json({success: false, message:error.message});
     }
@@ -77,7 +76,7 @@ const searchProduct = async(req, res) => {
 
 const addToMyCart = async(req, res) => {
     try{
-        const {username, productId} = req.query;
+        const {username, productId} = req.body;
 
         if(!username || !productId){
             return res.status(400).json({success:false, message:MISSING_PARAMETER,});
@@ -92,7 +91,7 @@ const addToMyCart = async(req, res) => {
 
 const showCart = async(req, res) => {
     try{
-        const {username} = req.query;
+        const {username} = req.body;
 
         if(!username){
             return res.status(400).json({success:false, message:MISSING_PARAMETER});
@@ -110,7 +109,7 @@ const showCart = async(req, res) => {
 
 const addToFav = async(req, res) => {
     try{
-        const {username, productId} = req.query;
+        const {username, productId} = req.body;
 
         if(!username || !productId){
             return res.status(400).json({success:false, message:MISSING_PARAMETER});
@@ -126,7 +125,7 @@ const addToFav = async(req, res) => {
 
 const getFavs = async(req, res) => {
     try{
-        const {username} = req.query;
+        const {username} = req.body;
 
         if(!username){
             return res.status(400).json({success:false, message:MISSING_PARAMETER});

@@ -8,9 +8,9 @@ import upload from '../middleware/uploadImage.js';
 const router = express.Router();
 
 router.post('/newProduct', upload.single('image'), createProduct);
-router.patch('/updatePrice/:dessertName', verifyTokenMiddleware, updatePrice);
-router.get('/getProduct/:category', getProduct);
-router.get('/searchProduct/:product', searchProduct);
+router.patch('/updatePrice', verifyTokenMiddleware, updatePrice);
+router.get('/getProduct', getProduct);
+router.get('/searchProduct', searchProduct);
 router.post('/addToCart', addToMyCart);
 router.get('/showCart', showCart);
 router.post('/addToFavs', addToFav);

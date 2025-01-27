@@ -8,8 +8,8 @@ import { MISSING_PARAMETER, INVALID_CREDENTIALS, INVALID_PASSWORD, INVALID_EMAIL
 
 const createUser = async (req, res) => {
     try {
-        const { firstname, lastname, email, username, password} = req.query;
-        // Ensure all required query parameters are present
+        const { firstname, lastname, email, username, password} = req.body;
+        // Ensure all required parameters are present
         if (!firstname || !lastname || !email || !username || !password) {
             return res.status(400).json({
                 success: false,
@@ -69,7 +69,7 @@ const createUser = async (req, res) => {
 const getUserDetails = async (req, res) => {
     try {
 
-        const { username} = req.query;
+        const { username} = req.body;
         if (!username) {
             return res.status(400).json({
                 success: false,
@@ -90,7 +90,7 @@ const getUserDetails = async (req, res) => {
 };
 
 const userLogin = async(req, res) => {
-    const {username, password} = req.query;
+    const {username, password} = req.body;
 
     try{
         const user = await validateUser(username, password);
@@ -117,8 +117,7 @@ const userLogin = async(req, res) => {
 
 const forgotPassword = async(req, res) => {
     try{
-        const{username} = req.params;
-        const {newPassword} = req.body;
+        const {username, newPassword} = req.body;
 
         if(!newPassword) { 
             return res.status(400).json(
@@ -128,8 +127,9 @@ const forgotPassword = async(req, res) => {
                 }
             )
         }
+        const newhashedPassword = await bcrypt.hash(newPassword, 8);
 
-        const updatedUser = await updatePassword(username, newPassword);
+        const updatedUser = await updatePassword(username, {newPassword:newhashedPassword});
 
         if(!updatedUser){
             return res.status(404).json(

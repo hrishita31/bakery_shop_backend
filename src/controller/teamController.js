@@ -16,7 +16,7 @@ const jobOptions = async(req, res) => {
 
 const createMember = async(req, res) => {
     try{
-        const {name, email, phoneNumber, jobRole} = req.query;
+        const {name, email, phoneNumber, jobRole} = req.body;
         if(!name || !phoneNumber || !email || !jobRole){
             res.status(400).json({success:false, message: MISSING_PARAMETER})
         }

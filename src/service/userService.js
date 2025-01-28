@@ -2,8 +2,7 @@ import User from '../model/userModel.js';
 import {ENTER_NEW_USERNAME} from '../message/messages.js';
 
 const addUser = async (username, userData) => {
-
-    const sameUser = User.exists({username});
+    const sameUser = await User.exists({username});
     if(sameUser){
         throw new Error(ENTER_NEW_USERNAME);
     }

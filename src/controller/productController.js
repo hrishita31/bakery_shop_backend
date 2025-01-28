@@ -2,25 +2,24 @@ import '../model/productModel.js';
 import json from 'express';
 import {addProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, addToFavs, findFavs} from '../service/productService.js';
 import { CART_NOT_UPDATED, MISSING_PARAMETER, PRODUCT_NOT_FOUND, EMPTY_CART, NO_FAVS } from '../message/messages.js';
+import { errorResponse, successResponse } from '../response/response.js';
 
 const createProduct = async(req, res) => {
     try{
         const {category, product, dessertName, price, rating} = req.body;
 
         if(!category || !product || !price){
-            return res.status(400).json({success:false, message:MISSING_PARAMETER,
-            });
+            return errorResponse(res, "", 400, MISSING_PARAMETER);
         } 
 
         const image = req.file ? {filename:req.file.filename, path:req.file.path, createdAt : Date.now()}:null;
         //console.log(image);
 
         const products = await addProduct({category, product, dessertName, image, price, rating});
-        
-        res.status(200).json({success:true, message:products});
+       return successResponse(res, products, 200);
 
     }catch(error){
-        res.status(500).json({ success: false, message: error.message });
+        return errorResponse(res, "", 500, error.message)
     }
 }
 
@@ -29,22 +28,18 @@ const updatePrice = async(req, res) => {
         const {dessertName, newPrice} = req.body;
 
         if(!dessertName){
-            return res.status(400).json({success:false, message:MISSING_PARAMETER});
+            return errorResponse(res, "", 400, MISSING_PARAMETER)
         }
 
         const updatedProduct = await changePrice(dessertName, newPrice);
 
         if (!updatedProduct) {
-            return res.status(404).json({ success: false, message: PRODUCT_NOT_FOUND });
+            return errorResponse(res, "", 404, PRODUCT_NOT_FOUND)
         }
-
-        res.status(200).json({
-            success: true,
-            message: updatedProduct,
-        });
+        return successResponse(res, updatedProduct, 200);
 
     }catch(error){
-        res.status(500).json({success:false, message:error.message});
+        return errorResponse(res, "", 500, error.message);
     }
 }
 
@@ -53,11 +48,11 @@ const getProduct = async(req, res) => {
         // const {category} = findProduct(req.query);
         const category = await findProduct(req.body.category);
         if(!category){
-            res.status(404).json({success:false, message:PRODUCT_NOT_FOUND});
+            return errorResponse(res, "", 404, PRODUCT_NOT_FOUND)
         }
-        res.status(200).json({success:true, message:category});
+        return successResponse(res, category, 200);
     }catch(error){
-        res.status(500).json({success: false, message: error.message});
+        return errorResponse(res, "", 500, error.message)
     }
 }
 
@@ -66,11 +61,11 @@ const searchProduct = async(req, res) => {
         const product = await searchDessert(req.body.product);
 
         if(!product){
-            res.status(404).json({success:false, message:MISSING_PARAMETER})
+            return errorResponse(res, "", 404, MISSING_PARAMETER)
         }
-        res.status(200).json({success:true, message:product});
+        return successResponse(res, product, 200);
     }catch(error){
-        res.status(500).json({success: false, message:error.message});
+        return errorResponse(res, "", 500, error.message);
     }
 }
 
@@ -79,13 +74,13 @@ const addToMyCart = async(req, res) => {
         const {username, productId} = req.body;
 
         if(!username || !productId){
-            return res.status(400).json({success:false, message:MISSING_PARAMETER,});
+            return errorResponse(res, "", 404, MISSING_PARAMETER)
         } 
 
         const addCart = await addToCart(username, productId);
-        res.status(201).json({success:true, message:addCart});
+        return successResponse(res, 201, addCart)
     }catch(error){
-        res.status(500).json({success:false, message:error.message})
+        return errorResponse(res, "", 500, error.message);
     }
 }
 
@@ -94,16 +89,16 @@ const showCart = async(req, res) => {
         const {username} = req.body;
 
         if(!username){
-            return res.status(400).json({success:false, message:MISSING_PARAMETER});
+            return errorResponse(res, "", 400, MISSING_PARAMETER)
         }
 
         const findCart = await findMyCart(username);
         if(!findCart){
-            return res.status(400).json({success, message:EMPTY_CART});
+            return errorResponse(res, "", 400, EMPTY_CART)
         }
-        res.status(201).json({success:true, message:findCart});
+        return successResponse(res, findCart, 201);
     }catch(error){
-
+        return errorResponse(res, "", 500, error.message);
     }
 }
 
@@ -112,14 +107,14 @@ const addToFav = async(req, res) => {
         const {username, productId} = req.body;
 
         if(!username || !productId){
-            return res.status(400).json({success:false, message:MISSING_PARAMETER});
+            return errorResponse(res, "", 400, MISSING_PARAMETER);
         } 
          
         const addFav = await addToFavs(username, productId);
-        res.status(201).json({success:true, message:addFav});
+        return successResponse(res, addFav, 201);
 
     }catch(error){
-        res.status(500).json({success:false, message:error.message});
+        return errorResponse(res, "", 500, error.message);
     }
 }
 
@@ -128,17 +123,17 @@ const getFavs = async(req, res) => {
         const {username} = req.body;
 
         if(!username){
-            return res.status(400).json({success:false, message:MISSING_PARAMETER});
+            return errorResponse(res, "", 400, MISSING_PARAMETER);
         }
 
         const findFav = await findFavs(username);
         if(!findFav){
-            return res.status(400).json({success, message:NO_FAVS});
+            return errorResponse(res, "", 400, NO_FAVS);
         }
-        res.status(201).json({success:true, message:findFav});
+        return successResponse(res, findFav, 201);
 
     }catch(error){
-        res.status(500).json({success:false, message:error.message});
+        return errorResponse(res, "", 500, error.message);
     }
 }
 export {createProduct, updatePrice, getProduct, searchProduct, addToMyCart, showCart, addToFav, getFavs};

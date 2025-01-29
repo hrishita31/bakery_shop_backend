@@ -1,19 +1,10 @@
 import '../model/teamModel.js';
 import {addTeamMember} from '../service/teamService.js';
 import '../message/messages.js';
-import { MISSING_PARAMETER, INVALID_PHONE_NUMBER } from '../message/messages.js';
+import { MISSING_PARAMETER, INVALID_PHONE_NUMBER, INVALID_EMAIL } from '../message/messages.js';
 import { successResponse, errorResponse } from '../response/response.js';
+import validator from 'validator';
 
-const jobOptions = async(req, res) => {
-    try{
-        const options = {
-            jobRole : ['baker', 'decorator', 'trainer'],
-        }
-        
-    }catch(error){
-        // res.status(500).json({success:false, message:error.message});
-    }
-}
 
 const createMember = async(req, res) => {
     try{
@@ -21,14 +12,23 @@ const createMember = async(req, res) => {
         if(!name || !phoneNumber || !email || !jobRole){
             return errorResponse(res, "", 400, MISSING_PARAMETER)
         }
-        if(phoneNumber.length!=10){
-            return errorResponse(res, "", 400, INVALID_PHONE_NUMBER)
+
+        const photo = req.file ? {filename:req.file.filename, path:req.file.path, createdAt : Date.now()}:null;
+
+        const isValidEmail = validator.isEmail(email)
+        if(!isValidEmail){
+            return errorResponse(res, "", 400, INVALID_EMAIL);
         }
-        const team = await addTeamMember({name, email, phoneNumber, jobRole});
+
+        const isValidPhoneNumber = validator.isLength(phoneNumber, {min:10, max:10})
+        if(!isValidPhoneNumber){
+            return errorResponse(res, "", 400, INVALID_PHONE_NUMBER);
+        }
+        const team = await addTeamMember({name, email, phoneNumber, jobRole, photo});
         return successResponse(res, team, 200);
     }catch(error){
         return errorResponse(res, "", 500, error.message);
     }
 }
 
-export {jobOptions, createMember};
+export {createMember};

@@ -6,7 +6,11 @@ const teamSchema = new mongoose.Schema(
         email : { type:String,  required :true},
         phoneNumber : {type:Number, required : true},
         jobRole : {type:String},
-        
+        image : {
+            filename: { type: String },
+            path: { type: String },
+            createdAt: { type: Date, default: Date.now },
+        },
     }
 )
 

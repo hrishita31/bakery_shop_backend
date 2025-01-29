@@ -22,8 +22,8 @@ const validateUser = async (username) => {
     return await User.findOne({ username });
 };
 
-const  updatePassword = async(username, {newPassword}) => {
-    return await User.findOneAndUpdate({username}, {password:newPassword}, {new:true});
+const  updatePassword = async(username, {newPassword}, {confirmnewPassword}) => {
+    return await User.findOneAndUpdate({username}, {confirmPassword:newPassword}, {confirmPassword:confirmnewPassword}, {new:true});
 };
 
 export { addUser, findUserByUsername, validateUser, updatePassword };

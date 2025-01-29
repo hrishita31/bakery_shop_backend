@@ -1,8 +1,8 @@
 import express from 'express';
-import {jobOptions, createMember } from '../controller/teamController.js';
+import {createMember } from '../controller/teamController.js';
 
 const router = express.Router();
 
-router.post('/postTeamMember', jobOptions, createMember);
+router.post('/postTeamMember', createMember);
 
 export default router;

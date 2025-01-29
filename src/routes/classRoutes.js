@@ -1,8 +1,9 @@
 import express from 'express';
-import {classOptions, newClassStudent } from '../controller/classController.js';
+import {newClassStudent } from '../controller/classController.js';
 
 const router = express.Router();
 
-router.post('/classRegistration', classOptions, newClassStudent);
+router.post('/classRegistration', newClassStudent);
 
 export default router;
+

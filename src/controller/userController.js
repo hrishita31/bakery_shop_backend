@@ -5,19 +5,17 @@ import '../model/userModel.js';
 import { addUser, findUserByUsername, validateUser, updatePassword } from '../service/userService.js';
 import { createTokenMiddleware } from '../middleware/middleware.js';
 import { MISSING_PARAMETER, INVALID_CREDENTIALS, INVALID_PASSWORD, INVALID_EMAIL, MISSING_NEW_PASSWORD, LOGIN_SUCCESSFUL,USER_NOT_FOUND, PASSWORD_UPDATED } from '../message/messages.js';
+import { successResponse, errorResponse } from '../response/response.js';
 
 const createUser = async (req, res) => {
     try {
         const { firstname, lastname, email, username, password} = req.body;
         // Ensure all required parameters are present
         if (!firstname || !lastname || !email || !username || !password) {
-            return res.status(400).json({
-                success: false,
-                message: MISSING_PARAMETER,
-            });
+            return errorResponse(res, "", 400, MISSING_PARAMETER)
         }
         if(!email.includes("@gmail.com")){
-            return res.status(400).json({success:false, message: INVALID_EMAIL});
+            return errorResponse(res, "", 400, INVALID_EMAIL)
         }
 
         const hasUpperCase = (password) => {
@@ -54,38 +52,31 @@ const createUser = async (req, res) => {
         }
 
         if(password.length<8 || !hasUpperCase(password) || !hasLowerCase(password) || !hasSpecialChar(password)){
-            return res.status(400).json({success:false, message:INVALID_PASSWORD});
+            return errorResponse(res, "", 400, INVALID_PASSWORD)
         }
         
         const hashedPassword = await bcrypt.hash(password, 8);
 
         const user = await addUser(username, { firstname, lastname, email, username, password:hashedPassword });
-        res.status(201).json({ success: true, data: user });
+        return successResponse(user, 203)
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        return errorResponse(res, "", 500, error.message)
     }
 };
 
 const getUserDetails = async (req, res) => {
     try {
-
         const { username} = req.body;
         if (!username) {
-            return res.status(400).json({
-                success: false,
-                message: MISSING_PARAMETER,
-            });
+            return errorResponse(res, "", 400, MISSING_PARAMETER)
         }
-
         const user = await findUserByUsername(username);
-
-        // const user = await findUserByUsername(req.params.username, req.params.password);
         if (!user) {
-            return res.status(404).json({ success: false, message: USER_NOT_FOUND });
+            return errorResponse(res, "", 404, USER_NOT_FOUND)
         }
-        res.status(200).json({ success: true, data: user });
+        return successResponse(user, 200);
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        return errorResponse(res, "", 500, error.message);
     }
 };
 
@@ -95,23 +86,19 @@ const userLogin = async(req, res) => {
     try{
         const user = await validateUser(username, password);
         if(!user) {
-            return res.status(401).json({success:false, message:INVALID_CREDENTIALS})
+            return errorResponse(res, "", 401, INVALID_CREDENTIALS)
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({ success: false, message: INVALID_CREDENTIALS });
+            return errorResponse(res, "", 401, INVALID_CREDENTIALS)
         }
 
         const token = createTokenMiddleware({ userId: user._id, username: user.username });
 
-        res.status(200).json({
-            success: true,
-            message: LOGIN_SUCCESSFUL,
-            token,
-        });
+        return successResponse(res, token, 200);
     }catch(error){
-        res.status(500).json({success:false, message:error.message});
+        return errorResponse(res, "", 500, error.message);
     }
 }
 
@@ -120,38 +107,18 @@ const forgotPassword = async(req, res) => {
         const {username, newPassword} = req.body;
 
         if(!newPassword) { 
-            return res.status(400).json(
-                {
-                    success:false,
-                    message:MISSING_NEW_PASSWORD
-                }
-            )
+            return errorResponse(res, "", 400, MISSING_NEW_PASSWORD)
         }
         const newhashedPassword = await bcrypt.hash(newPassword, 8);
 
         const updatedUser = await updatePassword(username, {newPassword:newhashedPassword});
 
         if(!updatedUser){
-            return res.status(404).json(
-                {
-                    success:false,
-                    message:USER_NOT_FOUND,
-                }
-            )
+            return errorResponse(res, "", 404, USER_NOT_FOUND)
         }
-        res.status(200).json(
-            {
-                success:true,
-                message:PASSWORD_UPDATED
-            }
-        )
+        return successResponse(res, PASSWORD_UPDATED, 200);
     }catch(error){
-        res.status(500).json(
-            {
-                success: false,
-                message : error.message,
-            }
-        )
+        return errorResponse(res, "", 500, error.message);
     }
 
 }

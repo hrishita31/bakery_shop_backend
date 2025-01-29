@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import validator from 'validator';
 
 import '../model/userModel.js';
 import { addUser, findUserByUsername, validateUser, updatePassword } from '../service/userService.js';
@@ -12,53 +13,20 @@ const createUser = async (req, res) => {
         const { firstname, lastname, email, username, password} = req.body;
         // Ensure all required parameters are present
         if (!firstname || !lastname || !email || !username || !password) {
-            return errorResponse(res, "", 400, MISSING_PARAMETER)
+            return errorResponse(res, "", 400, MISSING_PARAMETER);
         }
         if(!email.includes("@gmail.com")){
-            return errorResponse(res, "", 400, INVALID_EMAIL)
+            return errorResponse(res, "", 400, INVALID_EMAIL);
         }
-
-        const hasUpperCase = (password) => {
-            for(let i=0; i<password.length; i++){
-                let ch=  password.charCodeAt(i);
-                if(ch >= 65 && ch <= 90){
-                    return true;
-                }   
-            }
-            return false;
-        }
-
-        const hasLowerCase = (password) => {
-            for(let i=0; i<password.length; i++){
-                let ch=  password.charCodeAt(i);
-                if(ch >= 97 && ch <= 122){
-                    return true;
-                }
-            }
-            return false;
-        }
-        const hasSpecialChar = (password) => {
-            for(let i=0; i<password.length; i++){
-                let ch=  password.charCodeAt(i);
-                if(
-                    !(ch >= 65 && ch <= 90) && // A-Z
-                    !(ch >= 97 && ch <= 122) && // a-z
-                    !(ch >= 48 && ch <= 57) // 0-9
-                ) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if(password.length<8 || !hasUpperCase(password) || !hasLowerCase(password) || !hasSpecialChar(password)){
-            return errorResponse(res, "", 400, INVALID_PASSWORD)
+        const isPasswordStrong = validator.isStrongPassword(password, {minLength: 8, minLowercase: 1, minUppercase: 1, minSymbols: 1})
+        if(!isPasswordStrong){
+            return errorResponse(res, "", 400, INVALID_PASSWORD);
         }
         
         const hashedPassword = await bcrypt.hash(password, 8);
 
         const user = await addUser(username, { firstname, lastname, email, username, password:hashedPassword });
-        return successResponse(user, 203)
+        return successResponse(res, user, 203)
     } catch (error) {
         return errorResponse(res, "", 500, error.message)
     }

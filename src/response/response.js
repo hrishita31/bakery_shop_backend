@@ -1,7 +1,5 @@
-import { json } from "express";
-
 const successResponse = (res, resultReceived, statusCodeReceived) => {
-    return res.status(statusCodeReceived).json({
+    return res.status(statusCodeReceived).send({
         success:true,
         result:resultReceived,
         statusCode:statusCodeReceived
@@ -9,7 +7,7 @@ const successResponse = (res, resultReceived, statusCodeReceived) => {
 }
 
 const errorResponse = (res, resultReceived, statusCodeReceived, messageReceived) => {
-    return res.status(statusCodeReceived).json({
+    return res.status(statusCodeReceived).send({
         success:false, 
         result:resultReceived,
         statusCode:statusCodeReceived,

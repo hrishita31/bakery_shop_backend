@@ -10,7 +10,6 @@ const jobOptions = async(req, res) => {
             jobRole : ['baker', 'decorator', 'trainer'],
         }
         
-        // res.status(200).json({ success: true, data: options });
     }catch(error){
         // res.status(500).json({success:false, message:error.message});
     }

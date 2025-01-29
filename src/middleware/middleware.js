@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {NO_TOKEN,INVALID_TOKEN } from '../message/messages.js';
+import { errorResponse } from '../response/response.js';
 
 // Create token middleware
 const createTokenMiddleware = (payload) => {
@@ -14,7 +15,7 @@ const verifyTokenMiddleware = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1]; // Parse Bearer token
 
     if (!token) {
-        return res.status(403).json({ success: false, message: NO_TOKEN });
+        return errorResponse(res, "", 403, NO_TOKEN)
     }
 
     try {
@@ -22,7 +23,7 @@ const verifyTokenMiddleware = (req, res, next) => {
         req.user = verified; // Attach verified data to the request object
         next(); // Pass control to the next middleware/handler
     } catch (error) {
-        return res.status(401).json({ success: false, message: INVALID_TOKEN });
+        return errorResponse(res, "", 401, INVALID_TOKEN)
     }
 };
 

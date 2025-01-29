@@ -2,12 +2,15 @@ import User from '../model/userModel.js';
 import {ENTER_NEW_USERNAME} from '../message/messages.js';
 
 const addUser = async (username, userData) => {
+    console.log(username, 123, userData)
     const sameUser = await User.exists({username});
+    console.log(sameUser,8988);
     if(sameUser){
         throw new Error(ENTER_NEW_USERNAME);
     }
 
-    const user = new User(userData);
+    const user = await new User(userData);
+    console.log(user, 456)
     return await user.save();
 };
 

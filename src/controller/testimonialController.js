@@ -2,8 +2,6 @@ import { MISSING_PARAMETER } from '../message/messages.js';
 import '../model/testimonialModel.js';
 import { addTestimony } from '../service/testimonialService.js';
 import { successResponse, errorResponse } from '../response/response.js';
-import { json } from 'express';
-
 
 const newTestimony = async(req, res) => {
     try{
@@ -11,7 +9,10 @@ const newTestimony = async(req, res) => {
         if(!name || !location || !rating || !quote){
             return errorResponse(res, "", 404, MISSING_PARAMETER)
         }
-        const Testimony = await addTestimony({name, location, rating, quote});
+
+        const photo = req.file ? {filename:req.file.filename, path:req.file.path, createdAt : Date.now()}:null;
+        
+        const Testimony = await addTestimony({name, location, rating, quote, photo});
         return successResponse(res, Testimony, 201)
     }catch(error){
         return errorResponse(res, "", 500, error.message);

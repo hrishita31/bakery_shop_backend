@@ -1,12 +1,14 @@
 import '../model/productModel.js';
 import json from 'express';
-import {addProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, addToFavs, findFavs} from '../service/productService.js';
-import { CART_NOT_UPDATED, MISSING_PARAMETER, PRODUCT_NOT_FOUND, EMPTY_CART, NO_FAVS } from '../message/messages.js';
+import {addProduct, showProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, addToFavs, findFavs} from '../service/productService.js';
+import { PRODUCTS_DISPLAYED, NO_PRODUCTS, MISSING_PARAMETER, PRODUCT_NOT_FOUND, EMPTY_CART, NO_FAVS } from '../message/messages.js';
 import { errorResponse, successResponse } from '../response/response.js';
 
 const createProduct = async(req, res) => {
     try{
-        const {category, product, dessertName, price, rating} = req.body;
+        // console.log(req.body, 123)
+        // console.log(req,89999)
+        const {category, product, price, rating} = req.body;
 
         if(!category || !product || !price){
             return errorResponse(res, "", 400, MISSING_PARAMETER);
@@ -15,12 +17,27 @@ const createProduct = async(req, res) => {
         const image = req.file ? {filename:req.file.filename, path:req.file.path, createdAt : Date.now()}:null;
         //console.log(image);
 
-        const products = await addProduct({category, product, dessertName, image, price, rating});
+        const products = await addProduct(`${product} ${category}`,{category, product, image, price, rating});
+        // console.log(products,9999)
        return successResponse(res, products, 200);
 
     }catch(error){
         return errorResponse(res, "", 500, error.message)
     }
+}
+
+const displayProduct = async(req, res) => {
+    try{
+        const allProducts = await showProduct();
+
+        if(!allProducts){
+            return errorResponse(res, "", 400, NO_PRODUCTS);
+        }
+        return successResponse(res, allProducts, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message);
+    }
+   
 }
 
 const updatePrice = async(req, res) => {
@@ -136,4 +153,4 @@ const getFavs = async(req, res) => {
         return errorResponse(res, "", 500, error.message);
     }
 }
-export {createProduct, updatePrice, getProduct, searchProduct, addToMyCart, showCart, addToFav, getFavs};
+export {createProduct, displayProduct, updatePrice, getProduct, searchProduct, addToMyCart, showCart, addToFav, getFavs};

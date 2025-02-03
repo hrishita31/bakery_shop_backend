@@ -1,17 +1,43 @@
 import {Product} from '../model/productModel.js';
 import {FavProduct} from '../model/productModel.js';
 import { CartProduct } from '../model/productModel.js';
-import {PRODUCT_PRESENT, PRODUCT_NOT_FOUND, ALREADY_IN_CART, ALREADY_IN_FAVS, CART_EMPTY, NO_FAVS} from '../message/messages.js';
+import {PRODUCT_PRESENT, PRODUCT_NOT_FOUND, ALREADY_IN_CART, ALREADY_IN_FAVS, CART_EMPTY, NO_FAVS, NO_PRODUCTS} from '../message/messages.js';
 
 const addProduct = async(dessertName, productData) => {
-
-    const sameDessert = Product.exists({dessertName});
+// console.log(productData, 111, dessertName)
+    const sameDessert = await Product.exists({dessertName});
     if(sameDessert){
         throw new Error(PRODUCT_PRESENT);
     }
     const product = new Product(productData);
+
+    // console.log(product, 567)
+
     return await product.save();
 };
+
+const showProduct = async() => {
+    const productList =await Product.find();
+    console.log(productList, 123)
+    return productList;
+
+    // const productWithDetails = await Product.aggregate([
+    //     { $match: { username } },
+    //     {
+    //         $lookup: {
+    //             from: 'products', 
+    //             localField: 'productId',
+    //             foreignField: '_id',
+    //             as: 'allProductDetails',
+    //         },
+    //     }, 
+    // ]);
+
+    // if(productWithDetails===0){
+    //     throw new Error(NO_PRODUCTS);
+    // }
+    // return productWithDetails;
+}
 
 const changePrice = async(dessertName, updatePrice) => {
 
@@ -98,4 +124,4 @@ const findFavs = async(username) => {
     return favWithDetails;
 };
 
-export {addProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, addToFavs, findFavs};
+export {addProduct, showProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, addToFavs, findFavs};

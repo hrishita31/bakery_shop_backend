@@ -3,6 +3,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 // import multer from 'multer';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
@@ -17,7 +20,14 @@ dotenv.config();
 
 //const PORT = 5000;
 
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// console.log(__dirname,909)
+
 app.use(express.json());
+app.use("/images", express.static(path.join(__dirname, "../public/images")));
 
 // Database Connection
 mongoose.connect('mongodb://localhost:27017/bakery_shop')

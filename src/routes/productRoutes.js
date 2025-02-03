@@ -1,13 +1,15 @@
 import express from 'express';
 import multer from 'multer';
 // import {upload} from '../index.js';
-import {createProduct , updatePrice, getProduct, searchProduct, addToMyCart, showCart, addToFav, getFavs} from '../controller/productController.js';
+import {createProduct , displayProduct, updatePrice, getProduct, searchProduct, addToMyCart, showCart, addToFav, getFavs} from '../controller/productController.js';
 import {verifyTokenMiddleware} from '../middleware/middleware.js';
+// import {uploadImageHelper} from '../middleware/uploadImage.js';
 import upload from '../middleware/uploadImage.js';
 
 const router = express.Router();
 
-router.post('/newProduct', upload.single('image'), createProduct);
+router.post('/newProduct', upload.single("image"), verifyTokenMiddleware, createProduct);
+router.get('/displayProduct', displayProduct);
 router.patch('/updatePrice', verifyTokenMiddleware, updatePrice);
 router.get('/getProduct', getProduct);
 router.get('/searchProduct', searchProduct);

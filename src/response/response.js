@@ -2,7 +2,7 @@ const successResponse = (res, resultReceived, statusCodeReceived) => {
     return res.status(statusCodeReceived).send({
         success:true,
         result:resultReceived,
-        statusCode:statusCodeReceived
+        statusCode:statusCodeReceived,
     })
 }
 

@@ -29,6 +29,8 @@ const __dirname = path.dirname(__filename);
 app.use(express.json());
 app.use("/images", express.static(path.join(__dirname, "../public/images")));
 
+app.set('view engine', 'ejs');
+
 // Database Connection
 mongoose.connect('mongodb://localhost:27017/bakery_shop')
   .then(() => console.log("Connected to MongoDB (bakery_shop)"))

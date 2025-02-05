@@ -4,6 +4,7 @@ import { errorResponse } from '../response/response.js';
 
 // Create token middleware
 const createTokenMiddleware = (payload) => {
+    
     const jwtSecretKey = process.env.JWT_SECRET_KEY;
     return jwt.sign(payload, jwtSecretKey, { expiresIn: "48h" });
 };

@@ -20,23 +20,6 @@ const showProduct = async() => {
     const productList =await Product.find();
     console.log(productList, 123)
     return productList;
-
-    // const productWithDetails = await Product.aggregate([
-    //     { $match: { username } },
-    //     {
-    //         $lookup: {
-    //             from: 'products', 
-    //             localField: 'productId',
-    //             foreignField: '_id',
-    //             as: 'allProductDetails',
-    //         },
-    //     }, 
-    // ]);
-
-    // if(productWithDetails===0){
-    //     throw new Error(NO_PRODUCTS);
-    // }
-    // return productWithDetails;
 }
 
 const changePrice = async(dessertName, updatePrice) => {

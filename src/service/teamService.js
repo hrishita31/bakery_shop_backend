@@ -5,4 +5,10 @@ const addTeamMember = async(teamData) => {
     return await team.save();
 }
 
-export {addTeamMember};
+const showMember = async() => {
+    const memberList =await Team.find();
+        console.log(memberList, 1234)
+        return memberList;
+}
+
+export {addTeamMember,showMember};

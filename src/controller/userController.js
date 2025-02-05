@@ -8,9 +8,7 @@ import { createTokenMiddleware } from '../middleware/middleware.js';
 import { MISSING_PARAMETER, INVALID_CREDENTIALS, INVALID_PASSWORD, INVALID_EMAIL, MISSING_NEW_PASSWORD,USER_NOT_FOUND, PASSWORD_UPDATED, PASSWORDS_NOT_MATCHING } from '../message/messages.js';
 import { successResponse, errorResponse } from '../response/response.js';
 import { sendMail } from '../middleware/sendMail.js';
-import { forgotPasswordResponse } from '../response/forgotPasswordResponse.js';
 
-import User from '../model/userModel.js';
 
 const createUser = async (req, res) => {
     try {

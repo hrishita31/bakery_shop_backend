@@ -11,7 +11,7 @@ const createTokenMiddleware = (payload) => {
 
 // Verify token middleware
 const verifyTokenMiddleware = (req, res, next) => {
-    console.log(req.headers,89989)
+    // console.log(req.headers,89989)
     const jwtSecretKey = process.env.JWT_SECRET_KEY;
     const token = req.header('authorization')?.split(' ')[1]; // Parse Bearer token
 

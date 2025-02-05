@@ -4,11 +4,11 @@ import multer from 'multer';
 import {createProduct , displayProduct, updatePrice, getProduct, searchProduct, addToMyCart, showCart, addToFav, getFavs} from '../controller/productController.js';
 import {verifyTokenMiddleware} from '../middleware/middleware.js';
 // import {uploadImageHelper} from '../middleware/uploadImage.js';
-import upload from '../middleware/uploadImage.js';
+import {uploadProduct} from '../middleware/uploadImage.js';
 
 const router = express.Router();
 
-router.post('/newProduct', upload.single("image"), verifyTokenMiddleware, createProduct);
+router.post('/newProduct', uploadProduct.single("image"),  createProduct);
 router.get('/displayProduct', displayProduct);
 router.patch('/updatePrice', verifyTokenMiddleware, updatePrice);
 router.get('/getProduct', getProduct);

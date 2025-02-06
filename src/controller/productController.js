@@ -63,7 +63,7 @@ const updatePrice = async(req, res) => {
 const getProduct = async(req, res) => {
     try{
         // const {category} = findProduct(req.query);
-        const category = await findProduct(req.body.category);
+        const category = await findProduct(req.query.category);
         if(!category){
             return errorResponse(res, "", 404, PRODUCT_NOT_FOUND)
         }
@@ -75,7 +75,7 @@ const getProduct = async(req, res) => {
 
 const searchProduct = async(req, res) => {
     try{
-        const product = await searchDessert(req.body.product);
+        const product = await searchDessert(req.query.product);
 
         if(!product){
             return errorResponse(res, "", 404, MISSING_PARAMETER)
@@ -103,7 +103,7 @@ const addToMyCart = async(req, res) => {
 
 const showCart = async(req, res) => {
     try{
-        const {username} = req.body;
+        const {username} = req.query.username;
 
         if(!username){
             return errorResponse(res, "", 400, MISSING_PARAMETER)
@@ -137,7 +137,7 @@ const addToFav = async(req, res) => {
 
 const getFavs = async(req, res) => {
     try{
-        const {username} = req.body;
+        const {username} = req.query.username;
 
         if(!username){
             return errorResponse(res, "", 400, MISSING_PARAMETER);

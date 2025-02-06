@@ -1,7 +1,7 @@
 import '../model/teamModel.js';
-import {addTeamMember} from '../service/teamService.js';
+import {addTeamMember, showMember} from '../service/teamService.js';
 import '../message/messages.js';
-import { MISSING_PARAMETER, INVALID_PHONE_NUMBER, INVALID_EMAIL } from '../message/messages.js';
+import { MISSING_PARAMETER, INVALID_PHONE_NUMBER, INVALID_EMAIL, NO_MEMBERS } from '../message/messages.js';
 import { successResponse, errorResponse } from '../response/response.js';
 import validator from 'validator';
 
@@ -31,4 +31,18 @@ const createMember = async(req, res) => {
     }
 }
 
-export {createMember};
+const displayMember = async(req, res) => {
+    try{
+        const allMembers = await showMember();
+
+        if(!allMembers){
+            return errorResponse(res, "", 400, NO_MEMBERS);
+        }
+        return successResponse(res, allMembers, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message);
+    }
+   
+}
+
+export {createMember, displayMember};

@@ -36,7 +36,24 @@ const MemberStorage = multer.diskStorage({
     }
   });
 
+  const TestimonyStorage = multer.diskStorage({
+    destination : function(req, file, cb){
+        cb(null, './public/images/testimony');
+    },
+    filename: (req, file, cb) => {
+        return cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+    },
+    onFileUploadStart:function(file){
+        if(file.mimetype=='image/jpg' || file.mimetype == 'image/jpeg' || file.mimetype == 'image/png'){
+            return true;
+        }else{
+            return false;
+        }
+    }
+  });
+
 const uploadProduct = multer({ storage: ProductStorage });
 const uploadMember = multer({ storage: MemberStorage });
-export {uploadProduct, uploadMember};
+const uploadTestimony = multer({storage:TestimonyStorage})
+export {uploadProduct, uploadMember, uploadTestimony};
 // export {uploadImageHelper};

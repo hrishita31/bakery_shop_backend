@@ -5,4 +5,10 @@ const addTestimony = async(testimonyData) => {
     return await testimony.save();
 }
 
-export {addTestimony};
+const showTestimony = async() => {
+    const testimonyList =await Testimony.find();
+            console.log(testimonyList, 1234)
+            return testimonyList;
+}
+
+export {addTestimony, showTestimony};

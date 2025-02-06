@@ -8,10 +8,10 @@ const testimonialSchema = new mongoose.Schema(
         quote: {type:String, required : true},
         image : {
             filename: { type: String },
+            path: { type: String },
             createdAt: { type: Date, default: Date.now },
-            path:{ type: String },
-        },
+        }
     }
 )
 
-export default mongoose.model('Testimonial', testimonialSchema, "testimonies");
+export default mongoose.model('Testimonial', testimonialSchema, 'testimony');

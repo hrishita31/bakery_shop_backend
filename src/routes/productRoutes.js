@@ -8,14 +8,14 @@ import {uploadProduct} from '../middleware/uploadImage.js';
 
 const router = express.Router();
 
-router.post('/newProduct', uploadProduct.single("image"),  createProduct);
+router.post('/newProduct', uploadProduct.single("image"),  createProduct); //admin only
 router.get('/displayProduct', displayProduct);
-router.patch('/updatePrice', verifyTokenMiddleware, updatePrice);
+router.patch('/updatePrice', verifyTokenMiddleware, updatePrice); //admin only
 router.get('/getProduct', getProduct);
 router.get('/searchProduct', searchProduct);
-router.post('/addToCart', addToMyCart);
-router.get('/showCart', showCart);
-router.post('/addToFavs', addToFav);
-router.get('/getFavs', getFavs);
+router.post('/addToCart', addToMyCart); //verified user only
+router.get('/showCart', showCart); //verified user only
+router.post('/addToFavs', addToFav); //verified user only
+router.get('/getFavs', getFavs); //verified user only
 
 export default router;

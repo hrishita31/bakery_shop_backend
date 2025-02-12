@@ -3,7 +3,7 @@ import {newClassStudent } from '../controller/classController.js';
 
 const router = express.Router();
 
-router.post('/classRegistration', newClassStudent);
+router.post('/classRegistration', newClassStudent); 
 
 export default router;
 

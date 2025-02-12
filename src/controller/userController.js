@@ -3,12 +3,11 @@ import jwt from 'jsonwebtoken';
 import validator from 'validator';
 
 import '../model/userModel.js';
-import { addUser, findUserByUsername, validateUser, findDecodedUser, updatePassword } from '../service/userService.js';
+import { addUser, findUserByUsername, validateUser, findDecodedUser, updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin} from '../service/userService.js';
 import { createTokenMiddleware } from '../middleware/middleware.js';
-import { MISSING_PARAMETER, INVALID_CREDENTIALS, INVALID_PASSWORD, INVALID_EMAIL, MISSING_NEW_PASSWORD,USER_NOT_FOUND, PASSWORD_UPDATED, PASSWORDS_NOT_MATCHING } from '../message/messages.js';
+import { MISSING_PARAMETER, INVALID_CREDENTIALS, INVALID_PASSWORD, INVALID_EMAIL, USER_NOT_FOUND, PASSWORD_UPDATED, PASSWORDS_NOT_MATCHING, ADDRESS_NOT_ADDED, ADDRESS_NOT_EXIST, ADDRESS_NOT_UPDATED, ADDRESS_NOT_DELETED } from '../message/messages.js';
 import { successResponse, errorResponse } from '../response/response.js';
 import { sendMail } from '../middleware/sendMail.js';
-
 
 const createUser = async (req, res) => {
     try {
@@ -17,8 +16,6 @@ const createUser = async (req, res) => {
         if (!firstname || !lastname || !email || !username || !password || !confirmPassword) {
             return errorResponse(res, "", 400, MISSING_PARAMETER);
         }
-
-
 
         if(!email.includes("@gmail.com")){
             return errorResponse(res, "", 400, INVALID_EMAIL);
@@ -50,7 +47,6 @@ const getUserDetails = async (req, res) => {
         const user = await findUserByUsername(username);
         console.log(user, 78)
         if (!user) {
-            
             return errorResponse(res, "", 404, USER_NOT_FOUND)
         }
         const email = user.email;
@@ -77,19 +73,25 @@ const userLogin = async(req, res) => {
             return errorResponse(res, "", 401, INVALID_CREDENTIALS)
         }
 
-        const token = createTokenMiddleware({ userId: user._id, username: user.username });
+        const firstname = user.firstname;
+        const lastname = user.lastname;
+        const usrname = user.username;
+        const email = user.email;
 
-        return successResponse(res, token, 200);
+
+        const token = createTokenMiddleware({ userId: user._id, username: user.username });
+        const details = {firstname, lastname, usrname, email};
+        console.log(user, 123);
+        // console.log(...user, 456);
+        const response = {token, details}
+
+        return successResponse(res, response, 200);
     }catch(error){
         return errorResponse(res, "", 500, error.message);
     }
 }
 
-
-
 const forgotPassword = async(req, res) => {
-    
-   
     try{
         const {newPassword, confirmPassword,token} = req.body;
         const decoded = jwt.decode(token);
@@ -135,4 +137,94 @@ const forgotPassword = async(req, res) => {
 
 }
 
-export {createUser, getUserDetails, userLogin, forgotPassword};
+const userAddress = async(req, res) => {
+        
+    try{
+        const values = req.body;
+        console.log(values, 35678)
+    const username = req.query.username;
+    const user = await findUserByUsername(username);
+    if(!user){
+
+        return errorResponse(res, "", 404, USER_NOT_FOUND)
+    }
+    const address = await addAddress(username, values)
+    if(!address){
+        return errorResponse(res, "", 404, ADDRESS_NOT_ADDED);
+    }
+    console.log(address, 90909);
+    return successResponse(res, address, 200);
+    }catch (error) {
+        return errorResponse(res, "", 500, error.message)
+    }
+}
+
+const getUserAddress = async(req, res) => {
+    try {
+        const username = req.query.username; 
+        if (!username) {
+          return errorResponse(res, "", 400, MISSING_PARAMETER);
+        }
+    
+        const address = await findAddress(username); 
+        if (address) {
+          return successResponse(res, address, 200);
+        }else{
+          return successResponse(res, null, 200);
+        }
+      } catch (error) {
+        console.error("Error fetching address:", error);
+        return errorResponse(res, "", 500, error.message)
+      }
+}
+
+const getAddressToEdit = async(req, res) => {
+    try{
+        const addressId = req.query._id;
+        if(!addressId){
+            return errorResponse(res, "", 400, MISSING_PARAMETER);
+        }
+        const findAddress =await checkAddressExists(addressId);
+        // const findAddress = await UserAddress.findById('67a9c2769649f60a4e82877d');
+        console.log(findAddress);
+        if(!findAddress){
+            return errorResponse(res, "", 400, ADDRESS_NOT_EXIST);
+        }
+        return successResponse(res, findAddress, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message)
+    }
+}
+
+const editUserAddress = async(req, res) => {
+    try{
+    const values = req.body;
+    const _id = req.query._id;
+
+    const updatedAddress = await updateAddress(_id, values)
+
+    if(!updatedAddress){
+        return errorResponse(res, "", 404, ADDRESS_NOT_UPDATED)
+    }
+    return successResponse(res, updatedAddress, 200)
+    }catch(error){
+        return errorResponse(res, "", 500, error.message)
+    }
+}
+
+const deleteAddress = async(req, res) => {
+    try{
+    const addressId = req.query._id;
+
+    const deleteAddress = await addressToBin(addressId);
+
+    if(!deleteAddress){
+        return errorResponse(res, "", 500, ADDRESS_NOT_DELETED);
+    }
+    return successResponse(res, "deleted", 200);
+}catch(error){
+    return errorResponse(res, "", 500, error.message)
+}
+}
+
+export {createUser, getUserDetails, userLogin, forgotPassword, userAddress, getUserAddress, getAddressToEdit, editUserAddress, deleteAddress};

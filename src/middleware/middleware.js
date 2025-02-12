@@ -11,18 +11,37 @@ const createTokenMiddleware = (payload) => {
 
 // Verify token middleware
 const verifyTokenMiddleware = (req, res, next) => {
-    // console.log(req.headers,89989)
+    console.log(req.headers,89989)
     const jwtSecretKey = process.env.JWT_SECRET_KEY;
+    
     const token = req.header('authorization')?.split(' ')[1]; // Parse Bearer token
+    console.log(token, 'token')
 
     if (!token) {
         return errorResponse(res, "", 403, NO_TOKEN)
     }
 
+    console.log('token given')
     try {
-        const verified = jwt.verify(token, jwtSecretKey);
-        req.user = verified; // Attach verified data to the request object
-        next(); // Pass control to the next middleware/handler
+        var appData = {};
+        // const verified = jwt.verify(token, jwtSecretKey);
+        if (token) {
+            jwt.verify(token, jwtSecretKey, function(err) {
+                if (err) {
+                    // appData["error"] = 1;
+                    appData["data"] = "Token is invalid";
+                    return errorResponse(res, "", 500, appData)
+                } else {
+                    next();
+                }
+            });
+        } else {
+            // appData["error"] = 1;
+            appData["data"] = "Please send a token";
+            return errorResponse(res, "", 403, appData);
+
+        }
+        
     } catch (error) {
         return errorResponse(res, "", 401, INVALID_TOKEN)
     }

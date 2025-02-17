@@ -4,6 +4,22 @@ import path from 'path';
 // import { errorResponse, successResponse } from '../response/response.js';
 // import {IMAGE_NOT_UPLOADED, IMAGE_UPLOADED, ERROR_OCCURED} from '../message/messages.js'
 
+const UserStorage = multer.diskStorage({
+    destination : function(req, file, cb){
+        cb(null, './public/images/user');
+    },
+    filename: (req, file, cb) => {
+        return cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+    },
+    onFileUploadStart:function(file){
+        if(file.mimetype=='image/jpg' || file.mimetype == 'image/jpeg' || file.mimetype == 'image/png'){
+            return true;
+        }else{
+            return false;
+        }
+    }
+  });
+
 const ProductStorage = multer.diskStorage({
     destination : function(req, file, cb){
         cb(null, './public/images/product');
@@ -52,8 +68,9 @@ const MemberStorage = multer.diskStorage({
     }
   });
 
+  const uploadUser = multer({storage: UserStorage});
 const uploadProduct = multer({ storage: ProductStorage });
 const uploadMember = multer({ storage: MemberStorage });
 const uploadTestimony = multer({storage:TestimonyStorage})
-export {uploadProduct, uploadMember, uploadTestimony};
+export {uploadUser, uploadProduct, uploadMember, uploadTestimony};
 // export {uploadImageHelper};

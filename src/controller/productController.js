@@ -6,8 +6,6 @@ import { errorResponse, successResponse } from '../response/response.js';
 
 const createProduct = async(req, res) => {
     try{
-        // console.log(req.body, 123)
-        // console.log(req,89999)
         const {category, product, price, rating} = req.body;
 
         if(!category || !product || !price){
@@ -15,10 +13,7 @@ const createProduct = async(req, res) => {
         } 
 
         const image = req.file ? {filename:req.file.filename, path:req.file.path, createdAt : Date.now()}:null;
-        //console.log(image);
-
         const products = await addProduct(`${product} ${category}`,{category, product, image, price, rating});
-        // console.log(products,9999)
        return successResponse(res, products, 200);
 
     }catch(error){

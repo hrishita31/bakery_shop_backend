@@ -21,5 +21,15 @@ const addressSchema = new mongoose.Schema({
     pincode: {type:Number, required:true},
 })
 
+const profileSchema = new mongoose.Schema({
+    username: { type: String, required: true },
+    image : {
+        filename: { type: String },
+        path: { type: String },
+        createdAt: { type: Date, default: Date.now },
+    }, 
+})
+
 export const User = mongoose.model('User', userSchema, 'users'); 
 export const UserAddress = mongoose.model('UserAddress', addressSchema, 'userAddress')
+export const UserProfile = mongoose.model('UserProfile', profileSchema, 'userProfile')

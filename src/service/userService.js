@@ -1,4 +1,4 @@
-import {User, UserAddress} from '../model/userModel.js';
+import {User, UserAddress, UserProfile} from '../model/userModel.js';
 import {ENTER_NEW_USERNAME} from '../message/messages.js';
 
 const addUser = async (username, userData) => {
@@ -6,9 +6,7 @@ const addUser = async (username, userData) => {
     if(sameUser){
         throw new Error(ENTER_NEW_USERNAME);
     }
-
     const user = await new User(userData);
-    console.log(user, 456)
     return await user.save();
 };
 
@@ -29,10 +27,7 @@ const  updatePassword = async({username:username}, {password:newhashedPassword, 
 };
 
 const addAddress = async(username, addressData) => {
-    console.log(username);
-    console.log(addressData, 789)
     const address = await new UserAddress({username, ...addressData});
-    console.log(address, 456)
     return await address.save();
 }
 
@@ -52,4 +47,14 @@ const addressToBin = async(addressId) => {
     return await UserAddress.deleteOne({_id: addressId});
 }
 
-export { addUser, findUserByUsername, validateUser, findDecodedUser,  updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin };
+const checkProfile = async(username) => {
+    const profile = await UserProfile.findOne({username});
+    return profile;
+}
+
+const addProfile = async({username:username}, {image:image}) => {
+    const profile= await UserProfile.findOneAndUpdate({username:username}, {image:image}, {returnDocument:'after'})
+    return profile;
+}
+
+export { addUser, findUserByUsername, validateUser, findDecodedUser,  updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin, checkProfile, addProfile };

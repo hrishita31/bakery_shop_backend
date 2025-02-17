@@ -3,16 +3,15 @@ import jwt from 'jsonwebtoken';
 import validator from 'validator';
 
 import '../model/userModel.js';
-import { addUser, findUserByUsername, validateUser, findDecodedUser, updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin} from '../service/userService.js';
+import { addUser, findUserByUsername, validateUser, findDecodedUser, updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin, addProfile, checkProfile} from '../service/userService.js';
 import { createTokenMiddleware } from '../middleware/middleware.js';
-import { MISSING_PARAMETER, INVALID_CREDENTIALS, INVALID_PASSWORD, INVALID_EMAIL, USER_NOT_FOUND, PASSWORD_UPDATED, PASSWORDS_NOT_MATCHING, ADDRESS_NOT_ADDED, ADDRESS_NOT_EXIST, ADDRESS_NOT_UPDATED, ADDRESS_NOT_DELETED } from '../message/messages.js';
+import { PROFILE_NOT_ADDED, MISSING_PARAMETER, INVALID_CREDENTIALS, INVALID_PASSWORD, INVALID_EMAIL, USER_NOT_FOUND, PASSWORD_UPDATED, PASSWORDS_NOT_MATCHING, ADDRESS_NOT_ADDED, ADDRESS_NOT_EXIST, ADDRESS_NOT_UPDATED, ADDRESS_NOT_DELETED, PROFILE_EXISTS } from '../message/messages.js';
 import { successResponse, errorResponse } from '../response/response.js';
 import { sendMail } from '../middleware/sendMail.js';
 
 const createUser = async (req, res) => {
     try {
         const { firstname, lastname, email, username, password, confirmPassword} = req.body;
-        // Ensure all required parameters are present
         if (!firstname || !lastname || !email || !username || !password || !confirmPassword) {
             return errorResponse(res, "", 400, MISSING_PARAMETER);
         }
@@ -45,14 +44,11 @@ const getUserDetails = async (req, res) => {
             return errorResponse(res, "", 400, MISSING_PARAMETER)
         }
         const user = await findUserByUsername(username);
-        console.log(user, 78)
         if (!user) {
             return errorResponse(res, "", 404, USER_NOT_FOUND)
         }
         const email = user.email;
-        console.log(`mail to be sent to ${email}`)
         await sendMail(user);
-        console.log("mail sent", 999)
         return successResponse(res, user, 200);
     } catch (error) {
         return errorResponse(res, "", 500, error.message);
@@ -81,8 +77,6 @@ const userLogin = async(req, res) => {
 
         const token = createTokenMiddleware({ userId: user._id, username: user.username });
         const details = {firstname, lastname, usrname, email};
-        console.log(user, 123);
-        // console.log(...user, 456);
         const response = {token, details}
 
         return successResponse(res, response, 200);
@@ -97,21 +91,17 @@ const forgotPassword = async(req, res) => {
         const decoded = jwt.decode(token);
 
         const username = decoded.username;
-        console.log("decoded username: ", username);
 
         const user = await findDecodedUser(username)
         if(!user){
             return errorResponse(res, "", 404, USER_NOT_FOUND);
         }
-        console.log("user: ", user);
         if( !newPassword || !confirmPassword) { 
             return errorResponse(res, "", 400, MISSING_PARAMETER)
         }
-        console.log("passwords entered")
         if(newPassword !== confirmPassword){
             return errorResponse(res, "", 400, PASSWORDS_NOT_MATCHING);
         }
-        console.log("passwords matching")
         const newhashedPassword = await bcrypt.hash(newPassword, 8);
         const newconfirmPassword = await bcrypt.hash(confirmPassword, 8);
 
@@ -124,11 +114,9 @@ const forgotPassword = async(req, res) => {
 
         const updatedUser = await updatePassword({username:username}, {password:newhashedPassword, confirmPassword:newconfirmPassword});
         
-        console.log("updated user: ", updatedUser)
         if(!updatedUser){
             return errorResponse(res, "", 404, USER_NOT_FOUND)
         }
-        console.log("passwords updated");
         
         return successResponse(res, PASSWORD_UPDATED , 200);
     }catch(error){
@@ -141,7 +129,6 @@ const userAddress = async(req, res) => {
         
     try{
         const values = req.body;
-        console.log(values, 35678)
     const username = req.query.username;
     const user = await findUserByUsername(username);
     if(!user){
@@ -152,7 +139,6 @@ const userAddress = async(req, res) => {
     if(!address){
         return errorResponse(res, "", 404, ADDRESS_NOT_ADDED);
     }
-    console.log(address, 90909);
     return successResponse(res, address, 200);
     }catch (error) {
         return errorResponse(res, "", 500, error.message)
@@ -173,7 +159,6 @@ const getUserAddress = async(req, res) => {
           return successResponse(res, null, 200);
         }
       } catch (error) {
-        console.error("Error fetching address:", error);
         return errorResponse(res, "", 500, error.message)
       }
 }
@@ -185,8 +170,6 @@ const getAddressToEdit = async(req, res) => {
             return errorResponse(res, "", 400, MISSING_PARAMETER);
         }
         const findAddress =await checkAddressExists(addressId);
-        // const findAddress = await UserAddress.findById('67a9c2769649f60a4e82877d');
-        console.log(findAddress);
         if(!findAddress){
             return errorResponse(res, "", 400, ADDRESS_NOT_EXIST);
         }
@@ -227,4 +210,38 @@ const deleteAddress = async(req, res) => {
 }
 }
 
-export {createUser, getUserDetails, userLogin, forgotPassword, userAddress, getUserAddress, getAddressToEdit, editUserAddress, deleteAddress};
+const addProfilePicture = async(req, res) => {
+    try{
+        const image = req.file ? {filename:req.file.filename, path:req.file.path, createdAt : Date.now()}:null;
+        const username = req.query.username;
+
+    if(!username){
+        return errorResponse(res, "", 404, MISSING_PARAMETER);
+    }
+    const profile = await addProfile({username:username}, {image:image});
+    return successResponse(res, profile, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message)
+    }
+}
+
+const displayProfilePicture = async(req, res) => {
+    try{
+    const username = req.query.username; 
+        if (!username) {
+          return errorResponse(res, "", 400, MISSING_PARAMETER);
+        }
+
+        const profile = await checkProfile(username);
+        if(!profile || !profile.image){
+            return errorResponse(res, "", 404, "no profile picture")
+        }
+        return successResponse(res, profile, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message)
+    }
+
+
+}
+
+export {createUser, getUserDetails, userLogin, forgotPassword, userAddress, getUserAddress, getAddressToEdit, editUserAddress, deleteAddress, addProfilePicture, displayProfilePicture};

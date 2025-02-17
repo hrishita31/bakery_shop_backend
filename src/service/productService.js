@@ -4,21 +4,16 @@ import { CartProduct } from '../model/productModel.js';
 import {PRODUCT_PRESENT, PRODUCT_NOT_FOUND, ALREADY_IN_CART, ALREADY_IN_FAVS, CART_EMPTY, NO_FAVS, NO_PRODUCTS} from '../message/messages.js';
 
 const addProduct = async(dessertName, productData) => {
-// console.log(productData, 111, dessertName)
     const sameDessert = await Product.exists({dessertName});
     if(sameDessert){
         throw new Error(PRODUCT_PRESENT);
     }
     const product = new Product(productData);
-
-    // console.log(product, 567)
-
     return await product.save();
 };
 
 const showProduct = async() => {
     const productList =await Product.find();
-    console.log(productList, 123)
     return productList;
 }
 
@@ -41,7 +36,6 @@ const addToCart = async(username, productId) => {
         throw new Error(PRODUCT_NOT_FOUND);
     }
     const existingCart = await CartProduct.findOne({username, productId});
-
     if(existingCart){
         throw new Error(ALREADY_IN_CART);
     }

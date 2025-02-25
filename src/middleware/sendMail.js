@@ -11,11 +11,8 @@ const __dirname = path.dirname(__filename);
 
 const sendMail = async(user, req, res) => {
     const derivedEmail = user.email;
-    console.log("derived mail: " ,derivedEmail);
     let testAccount = await nodemailer.createTestAccount();
 
-
-    console.log("setting transporter")
     const transporter = await nodemailer.createTransport({
         host: 'smtp.gmail.com',
     port: 465,
@@ -25,21 +22,15 @@ const sendMail = async(user, req, res) => {
         pass: process.env.PASSWORD_FOR_MAIL_SENDER,
     }
     });
-    console.log("transporter set")
 
     const token = await createTokenMiddleware({ userId: user._id, username: user.username });
-    console.log("token: ", token);
 
     const templatePath = path.join(__dirname, '..', 'template', 'forgotPassword.ejs');
-
-    // console.log(`${process.env.URL_HEADER}`, 123)
 
         const emailHtml = await ejs.renderFile(templatePath, { 
             username : user.username,
             resetPasswordLink: `${process.env.URL_HEADER}/resetPassword?token=${token}` 
         });
-     
-        // console.log(`${process.env.URL_HEADER}/resetPassword?token=${token}` , 9876)
 
     
     const info = await transporter.sendMail({
@@ -48,10 +39,6 @@ const sendMail = async(user, req, res) => {
     
    html : emailHtml
     })
-    console.log("message sent: %s", info.messageId);
-
-    
-    // res.send(info);
 }
 
 export {sendMail};

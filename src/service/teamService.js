@@ -7,7 +7,6 @@ const addTeamMember = async(teamData) => {
 
 const showMember = async() => {
     const memberList =await Team.find();
-        console.log(memberList, 1234)
         return memberList;
 }
 

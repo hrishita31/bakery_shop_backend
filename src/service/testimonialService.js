@@ -7,7 +7,6 @@ const addTestimony = async(testimonyData) => {
 
 const showTestimony = async() => {
     const testimonyList =await Testimony.find();
-            console.log(testimonyList, 1234)
             return testimonyList;
 }
 

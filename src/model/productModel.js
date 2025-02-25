@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema(
             createdAt: { type: Date, default: Date.now },
         },
         price: { type: Number, required: true },
-        rating: { type: String },
+        rating: { type: Number },
     }
 );
 
@@ -32,12 +32,32 @@ const cartProductSchema = new mongoose.Schema(
     {
         username : {type:String, required:true},
         productId : {type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-        // quantity : {type:Number, required:true},
+        quantity : {type:Number, required:true},
+        price: { type: Number},
+        totalPrice : {type:Number},
+    }
+)
+
+const savedCartSchema = new mongoose.Schema(
+    {
+        username : {type:String},
+        
+        productId : {type: mongoose.Schema.Types.ObjectId, ref: 'Product'},
+        quantity : {type:Number},
+        price: { type: Number},
+        totalPrice : {type:Number},
+        category: { type: String},
+        product: { type: String},
+        dessertName: { type: String },
+        image : {
+            filename: { type: String },
+            path: { type: String },
+            createdAt: { type: Date, default: Date.now },
+        },
     }
 )
 
 export const Product = mongoose.model('Product', productSchema, 'products');
 export const FavProduct = mongoose.model('FavProduct', favProductSchema, 'favProducts');
 export const CartProduct = mongoose.model('CartProduct', cartProductSchema, 'cartProducts');
-
-// export default { Product, FavProduct };
+export const SavedCartProduct = mongoose.model('SavedCartProduct', savedCartSchema, 'savedCartProducts');

@@ -25,6 +25,8 @@ const favProductSchema = new mongoose.Schema(
     {
         username: { type: String, required: true },
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+        dessertName: { type: String },
+        price:{type:String},
     }
 );
 

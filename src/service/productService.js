@@ -133,20 +133,17 @@ const cartSaveOnCheckout = async(username, productId, quantity, price, totalPric
 
 
 const addToFavs = async(username, productId) => {
-    
     const product = await Product.findOne({_id: productId });
-    
     if(!product){
         throw new Error(PRODUCT_NOT_FOUND);
     }
 
     const existingFav = await FavProduct.findOne({username, productId});
-
     if(existingFav){
         throw new Error(ALREADY_IN_FAVS);
     }
 
-    const newFav = new FavProduct({username, productId:product._id});
+    const newFav = new FavProduct({username, productId:product._id, dessertName:product.dessertName, price:product.price});
     await newFav.save();
     return product;
 };
@@ -170,4 +167,11 @@ const findFavs = async(username) => {
     return favWithDetails;
 };
 
-export {addProduct, showProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, increaseQuantity, decreaseQuantity, cartSaveOnCheckout, removeFromCart, addToFavs, findFavs};
+const removeFromFavs = async(username, productId) => {
+    const existingFav = await FavProduct.findOne({username, productId});
+    const idToDelete = existingFav._id;
+
+    return await FavProduct.deleteOne({_id:idToDelete});
+}
+
+export {addProduct, showProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, increaseQuantity, decreaseQuantity, cartSaveOnCheckout, removeFromCart, addToFavs, findFavs, removeFromFavs};

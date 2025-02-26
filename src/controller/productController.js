@@ -1,14 +1,13 @@
 import '../model/productModel.js';
-import json from 'express';
-import {addProduct, showProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, increaseQuantity, decreaseQuantity, removeFromCart, cartSaveOnCheckout, addToFavs, findFavs} from '../service/productService.js';
-import { NO_PRODUCTS, MISSING_PARAMETER, PRODUCT_NOT_FOUND, NOT_REMOVED_FROM_CART, NO_INCREMENT, NO_DECREMENT, EMPTY_CART, NO_FAVS } from '../message/messages.js';
+import {addProduct, showProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, increaseQuantity, decreaseQuantity, removeFromCart, cartSaveOnCheckout, addToFavs, findFavs, removeFromFavs} from '../service/productService.js';
+import { NO_PRODUCTS, MISSING_PARAMETER, PRODUCT_NOT_FOUND, NOT_REMOVED_FROM_CART, NO_INCREMENT, NO_DECREMENT, EMPTY_CART, NO_FAVS, NOT_REMOVED_FROM_FAVS, NOT_ADDED_TO_FAVS } from '../message/messages.js';
 import { errorResponse, successResponse } from '../response/response.js';
 
 const createProduct = async(req, res) => {
     try{
         const {category, product, price, rating} = req.body;
 
-        if(!category || !product || !price){
+        if(!category || !product || !price || !rating){
             return errorResponse(res, "", 400, MISSING_PARAMETER);
         } 
 
@@ -57,7 +56,6 @@ const updatePrice = async(req, res) => {
 
 const getProduct = async(req, res) => {
     try{
-        // const {category} = findProduct(req.query);
         const category = await findProduct(req.query.category);
         if(!category){
             return errorResponse(res, "", 404, PRODUCT_NOT_FOUND)
@@ -187,8 +185,6 @@ const checkout = async(req, res) => {
         if (!savedCarts || savedCarts.length === 0) {
             return errorResponse(res, "", 404, "Could not save any cart items");
         }
-
-
         return successResponse(res, savedCarts, 200);    
     }catch(error){
         return errorResponse(res, "", 500, error.message);
@@ -197,15 +193,16 @@ const checkout = async(req, res) => {
 
 const addToFav = async(req, res) => {
     try{
-        const {username, productId} = req.body;
-
+        const productId = req.query._id;
+        const {username} = req.body;
         if(!username || !productId){
-            return errorResponse(res, "", 400, MISSING_PARAMETER);
+            return errorResponse(res, "", 404, MISSING_PARAMETER)
         } 
-         
         const addFav = await addToFavs(username, productId);
-        return successResponse(res, addFav, 201);
-
+        if(!addFav){
+            return errorResponse(res, "", 400, NOT_ADDED_TO_FAVS)
+        }
+        return successResponse(res, addFav, 200)
     }catch(error){
         return errorResponse(res, "", 500, error.message);
     }
@@ -213,7 +210,7 @@ const addToFav = async(req, res) => {
 
 const getFavs = async(req, res) => {
     try{
-        const {username} = req.query.username;
+        const username = req.query.username;
 
         if(!username){
             return errorResponse(res, "", 400, MISSING_PARAMETER);
@@ -229,4 +226,24 @@ const getFavs = async(req, res) => {
         return errorResponse(res, "", 500, error.message);
     }
 }
-export {createProduct, displayProduct, updatePrice, getProduct, searchProduct, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, checkout, addToFav, getFavs};
+
+const deleteFromFavs = async(req, res) => {
+    try{
+        const productId = req.query._id;
+        const {username} = req.body;
+        if(!username || !productId){
+            return errorResponse(res, "", 404, MISSING_PARAMETER)
+        } 
+        const removedProduct = await removeFromFavs(username, productId);
+
+        if(!removedProduct){
+            return errorResponse(res, "", 404, NOT_REMOVED_FROM_FAVS)
+        }
+        return successResponse(res, removedProduct, 200)
+    }catch(error){
+        return errorResponse(res, "", 500, error.message);
+    }
+}
+
+
+export {createProduct, displayProduct, updatePrice, getProduct, searchProduct, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, checkout, addToFav, getFavs, deleteFromFavs};

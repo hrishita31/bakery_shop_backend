@@ -6,22 +6,9 @@ import { successResponse, errorResponse } from '../response/response.js';
 const newTestimony = async(req, res) => {
     try{
         const {name, location, rating, quote} = req.body;
-        // if(!name || !location || !rating || !quote){
-        //     return errorResponse(res, "", 404, MISSING_PARAMETER)
-        // }
-        if(!name){
-            return errorResponse(res, "", 404, "missing name")
+        if(!name || !location || !quote){
+            return errorResponse(res, "", 404, MISSING_PARAMETER)
         }
-        if(!location){
-            return errorResponse(res, "", 404, "missing location")
-        }
-        if(!rating){
-            return errorResponse(res, "", 404, "missing rating")
-        }
-        if(!quote){
-            return errorResponse(res, "", 404, "missing quote")
-        }
-
 
         const image = req.file ? {filename:req.file.filename, path:req.file.path, createdAt : Date.now()}:null;
         if(!image){

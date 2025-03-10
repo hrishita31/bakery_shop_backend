@@ -1,13 +1,25 @@
-import {User, UserAddress, UserProfile} from '../model/userModel.js';
+import {User, UserAddress, UserProfile, ConnectWithUs} from '../model/userModel.js';
 import {ENTER_NEW_USERNAME} from '../message/messages.js';
 
 const addUser = async (username, userData) => {
+
+    const userExists = await User.find();
+
     const sameUser = await User.exists({username});
     if(sameUser){
         throw new Error(ENTER_NEW_USERNAME);
     }
-    const user = await new User(userData);
+
+    if(userExists.length >= 1){
+        const user = await new User({...userData, isAdmin : false})
+        console.log(user)
+        return await user.save();
+    }else{
+
+    const user = await new User({...userData, isAdmin:true});
+    console.log(user)
     return await user.save();
+    }
 };
 
 const findUserByUsername = async (username) => {
@@ -53,8 +65,20 @@ const checkProfile = async(username) => {
 }
 
 const addProfile = async({username:username}, {image:image}) => {
-    const profile= await UserProfile.findOneAndUpdate({username:username}, {image:image}, {returnDocument:'after'})
+
+    const profileExists = await UserProfile.findOne({username});
+    if(profileExists){
+        const profile= await UserProfile.findOneAndUpdate({username:username}, {image:image}, {returnDocument:'after'})
     return profile;
+    }else{
+        const profile = await new UserProfile({username: username, image:image});
+    return await profile.save();
+    }
 }
 
-export { addUser, findUserByUsername, validateUser, findDecodedUser,  updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin, checkProfile, addProfile };
+const newConnection = async(connectData) => {
+    const userConnect = new ConnectWithUs(connectData);
+    return await userConnect.save();
+}
+
+export { addUser, findUserByUsername, validateUser, findDecodedUser,  updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin, checkProfile, addProfile, newConnection};

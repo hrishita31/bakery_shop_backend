@@ -18,18 +18,68 @@ const showProduct = async() => {
     return productList;
 }
 
-const changePrice = async(dessertName, updatePrice) => {
-
-    return await Product.findOneAndUpdate({dessertName}, {price:updatePrice}, {new:true});
-};
-
 const findProduct = async(category) => {
     return await Product.find({category});
 };
 
 const searchDessert = async(product) => {
-    return await Product.find({product});
+    return await Product.find({product: {'$regex' : product, '$options':'i'}});
+    
 };
+
+const showCategories = async() => {
+    const productList = await Product.find();
+    const categories = productList.map(product => product.category);
+
+    const uniqueCategories = new Set(categories);
+    const categoriesFinal = [...uniqueCategories];
+
+    return categoriesFinal;
+}
+
+const ascendingOrder = async() => {
+    const query = {};
+    const sort = {product : 1, category:1};
+    const cursor = Product.find(query).sort(sort);
+    let sortedProducts = []
+    for await (const doc of cursor) {
+        sortedProducts.push(doc);
+      }
+      return sortedProducts;
+}
+
+const descendingOrder = async() => {
+    const query = {};
+    const sort = {product:-1, category : -1};
+    const cursor = Product.find(query).sort(sort);
+    let sortedProducts = []
+    for await (const doc of cursor) {
+        sortedProducts.push(doc);
+      }
+      return sortedProducts;
+}
+
+const ascendingPrice = async() => {
+    const query = {};
+    const sort = {price : 1};
+    const cursor = Product.find(query).sort(sort);
+    let sortedProducts = []
+    for await (const doc of cursor) {
+        sortedProducts.push(doc);
+      }
+      return sortedProducts;
+}
+
+const descendingPrice = async() => {
+    const query = {};
+    const sort = {price : -1};
+    const cursor = Product.find(query).sort(sort);
+    let sortedProducts = []
+    for await (const doc of cursor) {
+        sortedProducts.push(doc);
+      }
+      return sortedProducts;
+}
 
 const addToCart = async(username, productId, quantity) => {
     const product = await Product.findOne({_id:productId});
@@ -104,20 +154,32 @@ const decreaseQuantity = async(cartProductId) => {
     return await CartProduct.findOneAndUpdate({_id: cartProductId}, {quantity: newQuantity, totalPrice:newPrice}, {new:true});
 }
 
-const removeFromCart = async(productId) => {
+const removeFromCart = async(username, productId) => {
+
+    const existingCart = await CartProduct.findOne({username, productId});
+    const idToDelete = existingCart._id;
+    
+    const existingSavedCart = await SavedCartProduct.findOne({username, productId});
+    if(existingSavedCart){
+        const idToDeleteFromCheckoutCart = existingSavedCart._id;
+    
     const [cartDeleteResult, savedCartDeleteResult] = await Promise.all([
-        CartProduct.deleteOne({productId:productId}),
-        SavedCartProduct.deleteOne({productId:productId}),
+        CartProduct.deleteOne({_id:idToDelete}),
+        SavedCartProduct.deleteOne({_id:idToDeleteFromCheckoutCart}),
     ])
     return{
         cartDeleted: cartDeleteResult,
         savedCartDeleted : savedCartDeleteResult
     }
+    }
+    
+    return CartProduct.deleteOne({_id:idToDelete});
+
+    
 }
 
 const cartSaveOnCheckout = async(username, productId, quantity, price, totalPrice) => {
     const productDet = await Product.exists({_id:productId});
-    
     const productDetails = await Product.findOne(productDet)
 
     const dessertName = productDetails.dessertName;
@@ -125,9 +187,10 @@ const cartSaveOnCheckout = async(username, productId, quantity, price, totalPric
     const product = productDetails.product;
     const image = productDetails.image.filename;
 
-    const [deletePreviousProducts, userCart] = await Promise.all( [ SavedCartProduct.deleteOne({productId:productId}), new SavedCartProduct({username, productId, quantity, price, totalPrice, dessertName, category, product, image})])
+    const [deletePreviousProducts, userCart, updatedCart] = await Promise.all( [ SavedCartProduct.deleteOne({productId:productId}), new SavedCartProduct({username, productId, quantity, price, totalPrice, dessertName, category, product, image}), CartProduct.findOneAndUpdate({productId:productId}, {quantity:quantity, totalPrice:quantity*price}, {new:true})])
     return { deletedProducts : deletePreviousProducts,
-         userCart : userCart.save()
+         userCart : userCart.save(),
+         cartOnCheckout : updatedCart,
         };
 }
 
@@ -174,4 +237,10 @@ const removeFromFavs = async(username, productId) => {
     return await FavProduct.deleteOne({_id:idToDelete});
 }
 
-export {addProduct, showProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, increaseQuantity, decreaseQuantity, cartSaveOnCheckout, removeFromCart, addToFavs, findFavs, removeFromFavs};
+const cartSaveOnLogout = async(username, productId, quantity, price, totalPrice) => {
+    
+    return await CartProduct.findOneAndUpdate({productId:productId}, {quantity:quantity, totalPrice:quantity*price}, {new:true})
+
+}
+
+export {addProduct, showProduct, findProduct, searchDessert, showCategories, ascendingOrder, descendingOrder, ascendingPrice, descendingPrice, addToCart, findMyCart, increaseQuantity, decreaseQuantity, cartSaveOnCheckout, removeFromCart, addToFavs, findFavs, removeFromFavs, cartSaveOnLogout};

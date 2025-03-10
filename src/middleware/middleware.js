@@ -25,7 +25,8 @@ const verifyTokenMiddleware = (req, res, next) => {
             jwt.verify(token, jwtSecretKey, function(err) {
                 if (err) {
                     // appData["error"] = 1;
-                    appData["data"] = "Token is invalid";
+                    // appData["data"] = "Token is invalid";
+                    appData["data"] = "You will have to login first to access this"
                     return errorResponse(res, "", 500, appData)
                 } else {
                     next();

@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken';
 import validator from 'validator';
 
 import '../model/userModel.js';
-import { addUser, findUserByUsername, validateUser, findDecodedUser, updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin, addProfile, checkProfile} from '../service/userService.js';
+import { addUser, findUserByUsername, validateUser, findDecodedUser, updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin, addProfile, checkProfile, newConnection} from '../service/userService.js';
 import { createTokenMiddleware } from '../middleware/middleware.js';
-import { PROFILE_NOT_ADDED, MISSING_PARAMETER, INVALID_CREDENTIALS, INVALID_PASSWORD, INVALID_EMAIL, USER_NOT_FOUND, PASSWORD_UPDATED, PASSWORDS_NOT_MATCHING, ADDRESS_NOT_ADDED, ADDRESS_NOT_EXIST, ADDRESS_NOT_UPDATED, ADDRESS_NOT_DELETED, PROFILE_EXISTS } from '../message/messages.js';
+import { ADDRESS_DELETED, MISSING_PARAMETER, INVALID_CREDENTIALS, INVALID_PASSWORD, INVALID_EMAIL, USER_NOT_FOUND, PASSWORD_UPDATED, PASSWORDS_NOT_MATCHING, ADDRESS_NOT_ADDED, ADDRESS_NOT_EXIST, ADDRESS_NOT_UPDATED, ADDRESS_NOT_DELETED, NO_PROFILE_PICTURE, NO_REQUEST_RECEIVED } from '../message/messages.js';
 import { successResponse, errorResponse } from '../response/response.js';
 import { sendMail } from '../middleware/sendMail.js';
 
@@ -16,9 +16,10 @@ const createUser = async (req, res) => {
             return errorResponse(res, "", 400, MISSING_PARAMETER);
         }
 
-        if(!email.includes("@gmail.com")){
-            return errorResponse(res, "", 400, INVALID_EMAIL);
-        }
+        const isValidEmail = validator.isEmail(email)
+                if(!isValidEmail){
+                    return errorResponse(res, "", 400, INVALID_EMAIL);
+                }
         const isPasswordStrong = validator.isStrongPassword(password, {minLength: 8, minLowercase: 1, minUppercase: 1, minSymbols: 1})
         if(!isPasswordStrong){
             return errorResponse(res, "", 400, INVALID_PASSWORD);
@@ -47,7 +48,6 @@ const getUserDetails = async (req, res) => {
         if (!user) {
             return errorResponse(res, "", 404, USER_NOT_FOUND)
         }
-        const email = user.email;
         await sendMail(user);
         return successResponse(res, user, 200);
     } catch (error) {
@@ -73,10 +73,10 @@ const userLogin = async(req, res) => {
         const lastname = user.lastname;
         const usrname = user.username;
         const email = user.email;
-
+        const isAdmin = user.isAdmin;
 
         const token = createTokenMiddleware({ userId: user._id, username: user.username });
-        const details = {firstname, lastname, usrname, email};
+        const details = {firstname, lastname, usrname, email, isAdmin};
         const response = {token, details}
 
         return successResponse(res, response, 200);
@@ -154,7 +154,8 @@ const getUserAddress = async(req, res) => {
     
         const address = await findAddress(username); 
         if (address) {
-          return successResponse(res, address, 200);
+                return successResponse(res, address, 200);
+          
         }else{
           return successResponse(res, null, 200);
         }
@@ -173,7 +174,10 @@ const getAddressToEdit = async(req, res) => {
         if(!findAddress){
             return errorResponse(res, "", 400, ADDRESS_NOT_EXIST);
         }
-        return successResponse(res, findAddress, 200);
+        setTimeout(() => {
+            return successResponse(res, findAddress, 200);
+        }, 3000);
+        
     }catch(error){
         return errorResponse(res, "", 500, error.message)
     }
@@ -204,7 +208,7 @@ const deleteAddress = async(req, res) => {
     if(!deleteAddress){
         return errorResponse(res, "", 500, ADDRESS_NOT_DELETED);
     }
-    return successResponse(res, "deleted", 200);
+    return successResponse(res, ADDRESS_DELETED, 200);
 }catch(error){
     return errorResponse(res, "", 500, error.message)
 }
@@ -234,14 +238,30 @@ const displayProfilePicture = async(req, res) => {
 
         const profile = await checkProfile(username);
         if(!profile || !profile.image){
-            return errorResponse(res, "", 404, "no profile picture")
+            return errorResponse(res, "", 404, NO_PROFILE_PICTURE)
         }
         return successResponse(res, profile, 200);
     }catch(error){
         return errorResponse(res, "", 500, error.message)
     }
-
-
 }
 
-export {createUser, getUserDetails, userLogin, forgotPassword, userAddress, getUserAddress, getAddressToEdit, editUserAddress, deleteAddress, addProfilePicture, displayProfilePicture};
+const connectWithUs = async(req, res) => {
+    try{
+        const {name, email, message} = req.body;
+
+        if(!name || !email || !message){
+            return errorResponse(res, "", 400, MISSING_PARAMETER);
+        }
+
+        const saveConnection = await newConnection({name, email, message});
+        if(!saveConnection){
+            return errorResponse(res, "", 400, NO_REQUEST_RECEIVED);
+        }
+        return successResponse(res, saveConnection, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message)
+    }
+}
+
+export {createUser, getUserDetails, userLogin, forgotPassword, userAddress, getUserAddress, getAddressToEdit, editUserAddress, deleteAddress, addProfilePicture, displayProfilePicture, connectWithUs};

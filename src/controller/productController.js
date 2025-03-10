@@ -1,18 +1,18 @@
 import '../model/productModel.js';
-import {addProduct, showProduct, changePrice, findProduct, searchDessert, addToCart, findMyCart, increaseQuantity, decreaseQuantity, removeFromCart, cartSaveOnCheckout, addToFavs, findFavs, removeFromFavs} from '../service/productService.js';
-import { NO_PRODUCTS, MISSING_PARAMETER, PRODUCT_NOT_FOUND, NOT_REMOVED_FROM_CART, NO_INCREMENT, NO_DECREMENT, EMPTY_CART, NO_FAVS, NOT_REMOVED_FROM_FAVS, NOT_ADDED_TO_FAVS } from '../message/messages.js';
+import {addProduct, showProduct, findProduct, searchDessert, showCategories, ascendingOrder, descendingOrder, ascendingPrice, descendingPrice, addToCart, findMyCart, increaseQuantity, decreaseQuantity, removeFromCart, cartSaveOnCheckout, addToFavs, findFavs, removeFromFavs, cartSaveOnLogout} from '../service/productService.js';
+import { NO_PRODUCTS, MISSING_PARAMETER, PRODUCT_NOT_FOUND, NO_CATEGORIES, NOT_SORTED, NOT_REMOVED_FROM_CART, NO_INCREMENT, NO_DECREMENT, EMPTY_CART, NO_FAVS, NOT_REMOVED_FROM_FAVS, NOT_ADDED_TO_FAVS } from '../message/messages.js';
 import { errorResponse, successResponse } from '../response/response.js';
 
 const createProduct = async(req, res) => {
     try{
-        const {category, product, price, rating} = req.body;
+        const {category, product, price} = req.body;
 
-        if(!category || !product || !price || !rating){
+        if(!category || !product || !price){
             return errorResponse(res, "", 400, MISSING_PARAMETER);
         } 
 
         const image = req.file ? {filename:req.file.filename, path:req.file.path, createdAt : Date.now()}:null;
-        const products = await addProduct(`${product} ${category}`,{category, product, image, price, rating});
+        const products = await addProduct(`${product} ${category}`,{category, product, image, price});
        return successResponse(res, products, 200);
 
     }catch(error){
@@ -32,26 +32,6 @@ const displayProduct = async(req, res) => {
         return errorResponse(res, "", 500, error.message);
     }
    
-}
-
-const updatePrice = async(req, res) => {
-    try{
-        const {dessertName, newPrice} = req.body;
-
-        if(!dessertName){
-            return errorResponse(res, "", 400, MISSING_PARAMETER)
-        }
-
-        const updatedProduct = await changePrice(dessertName, newPrice);
-
-        if (!updatedProduct) {
-            return errorResponse(res, "", 404, PRODUCT_NOT_FOUND)
-        }
-        return successResponse(res, updatedProduct, 200);
-
-    }catch(error){
-        return errorResponse(res, "", 500, error.message);
-    }
 }
 
 const getProduct = async(req, res) => {
@@ -74,6 +54,66 @@ const searchProduct = async(req, res) => {
             return errorResponse(res, "", 404, MISSING_PARAMETER)
         }
         return successResponse(res, product, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message);
+    }
+}
+
+const getCategory = async(req, res) => {
+    try{
+        const allCategories = await showCategories();
+        if(!allCategories){
+            return errorResponse(res, "", 400, NO_CATEGORIES);
+        }
+        return successResponse(res, allCategories, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message);
+    }
+}
+
+const sortProductsAscending = async(req, res) => {
+    try{
+        const ascendingOrderProducts = await ascendingOrder();
+        if(!ascendingOrderProducts){
+            return errorResponse(res, "", 400, NOT_SORTED);
+        }
+        return successResponse(res, ascendingOrderProducts, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message);
+    }
+}
+
+const sortProductsDescending = async(req, res) => {
+    try{
+        const descendingOrderProducts = await descendingOrder();
+        if(!descendingOrderProducts){
+            return errorResponse(res, "", 400, NOT_SORTED);
+        }
+        return successResponse(res, descendingOrderProducts, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message);
+    }
+}
+
+const sortPriceAscending = async(req, res) => {
+    try{
+        const sortPriceAscending = await ascendingPrice();
+        if(!sortPriceAscending){
+            return errorResponse(res, "", 400, NOT_SORTED);
+        }
+        return successResponse(res, sortPriceAscending, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message);
+    }
+}
+
+const sortPriceDescending = async(req, res) => {
+    try{
+        const sortPriceDescending = await descendingPrice();
+        if(!sortPriceDescending){
+            return errorResponse(res, "", 400, NOT_SORTED);
+        }
+        return successResponse(res, sortPriceDescending, 200);
     }catch(error){
         return errorResponse(res, "", 500, error.message);
     }
@@ -151,8 +191,13 @@ const decrementProductCart = async(req, res) => {
 const deleteFromCart = async(req, res) => {
     try{
         const productId = req.query._id;
+        const {username} = req.body;
+        
+        if(!username || !productId){
+            return errorResponse(res, "", 400, MISSING_PARAMETER)
+        }
 
-        const removedProduct = await removeFromCart(productId);
+        const removedProduct = await removeFromCart(username, productId);
 
         if(!removedProduct){
             return errorResponse(res, "", 404, NOT_REMOVED_FROM_CART)
@@ -245,5 +290,29 @@ const deleteFromFavs = async(req, res) => {
     }
 }
 
+const saveOnLogout = async(req, res) => {
+    try{
+        const {cart} = req.body;
+        if (!cart || !Array.isArray(cart) || cart.length === 0) {
+            return errorResponse(res, "", 400, "Invalid cart data");
+        }
 
-export {createProduct, displayProduct, updatePrice, getProduct, searchProduct, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, checkout, addToFav, getFavs, deleteFromFavs};
+        const username = cart[0].username;
+        const cartItem = cart.slice(1,)
+    
+        const savedCartPromises = cartItem.map(async (item) => {
+            const {  productId, quantity, price } = item;
+            const totalPrice = quantity * price;
+            return await cartSaveOnLogout(username, productId, quantity, price, totalPrice);
+        });
+        const savedCarts = await Promise.all(savedCartPromises);
+        if (!savedCarts || savedCarts.length === 0) {
+            return errorResponse(res, "", 404, "Could not save any cart items");
+        }
+        return successResponse(res, savedCarts, 200);    
+    }catch(error){
+        return errorResponse(res, "", 500, error.message);
+    }
+}
+
+export {createProduct, displayProduct, getProduct, searchProduct, getCategory, sortProductsAscending, sortProductsDescending, sortPriceAscending, sortPriceDescending, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, checkout, addToFav, getFavs, deleteFromFavs, saveOnLogout};

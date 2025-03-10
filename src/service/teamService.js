@@ -1,13 +1,28 @@
-import Team from '../model/teamModel.js';
+import {TeamRegister} from '../model/teamModel.js';
 
-const addTeamMember = async(teamData) => {
-    const team = new Team(teamData);
+const registerToTeam = async(teamData) => {
+    const team = new TeamRegister(teamData);
     return await team.save();
 }
 
-const showMember = async() => {
-    const memberList =await Team.find();
+const addMember = async(memberId) => {
+    const member = await TeamRegister.findOneAndUpdate({_id:memberId}, {isApproved:true}, {new:true});
+    return member;
+}
+
+const showMembers = async() => {
+    const memberList =await TeamRegister.find({isApproved:null});
         return memberList;
 }
 
-export {addTeamMember,showMember};
+const showTeamMembers = async() => {
+    const teamMembers = await TeamRegister.find({isApproved:true})
+    return teamMembers;
+}
+
+const removeMember = async(memberId) => {
+    const member = await TeamRegister.findOneAndUpdate({_id:memberId},  {isApproved:false},{new:true});
+    return member;
+}
+
+export {registerToTeam, addMember, showMembers, showTeamMembers, removeMember};

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const teamSchema = new mongoose.Schema(
+const teamRegisterSchema = new mongoose.Schema(
     {
         name: { type:String,  required :true},
         email : { type:String,  required :true},
@@ -11,7 +11,8 @@ const teamSchema = new mongoose.Schema(
             path: { type: String },
             createdAt: { type: Date, default: Date.now },
         },
+        isApproved : {type:Boolean},
     }
 )
 
-export default mongoose.model('Team', teamSchema, 'team'); 
+export const TeamRegister = mongoose.model('TeamRegister', teamRegisterSchema, 'teamRegister'); 

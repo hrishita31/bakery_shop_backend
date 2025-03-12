@@ -24,7 +24,7 @@ const createMember = async(req, res) => {
         if(!isValidPhoneNumber){
             return errorResponse(res, "", 400, INVALID_PHONE_NUMBER);
         }
-        const team = await registerToTeam({name, email, phoneNumber, jobRole, image});
+        const team = await registerToTeam({name, email, phoneNumber, jobRole, image, isApproved: null});
         return successResponse(res, team, 200);
     }catch(error){
         return errorResponse(res, "", 500, error.message);
@@ -58,7 +58,6 @@ const displayMembers = async(req, res) => {
     }catch(error){
         return errorResponse(res, "", 500, error.message);
     }
-   
 }
 
 const displayTeamMembers = async(req, res) => {

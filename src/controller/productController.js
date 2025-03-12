@@ -191,7 +191,7 @@ const decrementProductCart = async(req, res) => {
 const deleteFromCart = async(req, res) => {
     try{
         const productId = req.query._id;
-        const {username} = req.body;
+        const username = req.query.username;
         
         if(!username || !productId){
             return errorResponse(res, "", 400, MISSING_PARAMETER)
@@ -275,7 +275,7 @@ const getFavs = async(req, res) => {
 const deleteFromFavs = async(req, res) => {
     try{
         const productId = req.query._id;
-        const {username} = req.body;
+        const username = req.query.username;
         if(!username || !productId){
             return errorResponse(res, "", 404, MISSING_PARAMETER)
         } 

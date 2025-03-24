@@ -2,6 +2,7 @@ import '../model/productModel.js';
 import {addProduct, showProduct, findProduct, searchDessert, showCategories, ascendingOrder, descendingOrder, ascendingPrice, descendingPrice, addToCart, findMyCart, increaseQuantity, decreaseQuantity, removeFromCart, cartSaveOnCheckout, addToFavs, findFavs, removeFromFavs, cartSaveOnLogout} from '../service/productService.js';
 import { NO_PRODUCTS, MISSING_PARAMETER, PRODUCT_NOT_FOUND, NO_CATEGORIES, NOT_SORTED, NOT_REMOVED_FROM_CART, NO_INCREMENT, NO_DECREMENT, EMPTY_CART, NO_FAVS, NOT_REMOVED_FROM_FAVS, NOT_ADDED_TO_FAVS } from '../message/messages.js';
 import { errorResponse, successResponse } from '../response/response.js';
+// import {process.env.STRIPE_SECRET_KEY} from 'stripe';
 
 const createProduct = async(req, res) => {
     try{
@@ -315,4 +316,13 @@ const saveOnLogout = async(req, res) => {
     }
 }
 
-export {createProduct, displayProduct, getProduct, searchProduct, getCategory, sortProductsAscending, sortProductsDescending, sortPriceAscending, sortPriceDescending, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, checkout, addToFav, getFavs, deleteFromFavs, saveOnLogout};
+const makePayment = async(req, res) => {
+    try{
+        const {products} = req.body;
+        console.log(products);
+    }catch(error){
+
+    }
+}
+
+export {createProduct, displayProduct, getProduct, searchProduct, getCategory, sortProductsAscending, sortProductsDescending, sortPriceAscending, sortPriceDescending, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, checkout, addToFav, getFavs, deleteFromFavs, saveOnLogout, makePayment};

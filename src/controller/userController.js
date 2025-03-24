@@ -40,7 +40,8 @@ const createUser = async (req, res) => {
 
 const getUserDetails = async (req, res) => {
     try {
-        const { username} = req.body;
+        const { username } = req.body;
+        console.log(username);
         if (!username) {
             return errorResponse(res, "", 400, MISSING_PARAMETER)
         }
@@ -49,6 +50,7 @@ const getUserDetails = async (req, res) => {
             return errorResponse(res, "", 404, USER_NOT_FOUND)
         }
         await sendMail(user);
+        console.log("mail sent");
         return successResponse(res, user, 200);
     } catch (error) {
         return errorResponse(res, "", 500, error.message);
@@ -174,9 +176,8 @@ const getAddressToEdit = async(req, res) => {
         if(!findAddress){
             return errorResponse(res, "", 400, ADDRESS_NOT_EXIST);
         }
-        setTimeout(() => {
-            return successResponse(res, findAddress, 200);
-        }, 3000);
+        return successResponse(res, findAddress, 200);
+        
         
     }catch(error){
         return errorResponse(res, "", 500, error.message)

@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const sendMail = async(user, req, res) => {
     const derivedEmail = user.email;
+    console.log(derivedEmail, "derived mail");
     let testAccount = await nodemailer.createTestAccount();
 
     const transporter = await nodemailer.createTransport({
@@ -18,7 +19,7 @@ const sendMail = async(user, req, res) => {
     port: 465,
     secure:true,
     auth: {
-        user: '21bce089@nirmauni.ac.in',
+        user: 'hrishita.3134@gmail.com',
         pass: process.env.PASSWORD_FOR_MAIL_SENDER,
     }
     });
@@ -27,18 +28,32 @@ const sendMail = async(user, req, res) => {
 
     const templatePath = path.join(__dirname, '..', 'template', 'forgotPassword.ejs');
 
-        const emailHtml = await ejs.renderFile(templatePath, { 
-            username : user.username,
-            resetPasswordLink: `${process.env.URL_HEADER}/resetPassword?token=${token}` 
-        });
+    const emailHtml = await ejs.renderFile(templatePath, { 
+        username : user.username,
+        resetPasswordLink: `${process.env.URL_HEADER}/resetPassword?token=${token}` 
+    });
 
+    const mailOptions = {
+        from : 'hrishita.3134@gmail.com',
+        to : derivedEmail,
+        subject : "Reset password link",
+        html : emailHtml
+    }
+    await transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      })
+    console.log("hi")
+//     const info = await transporter.sendMail({
+//     to: derivedEmail, // list of receivers
+//     subject: "Mail send test", // Subject line
     
-    const info = await transporter.sendMail({
-    to: derivedEmail, // list of receivers
-    subject: "Mail send test", // Subject line
-    
-   html : emailHtml
-    })
+//    html : emailHtml
+//     })
+//     console.log("hi")
 }
 
 export {sendMail};

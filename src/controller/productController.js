@@ -1,8 +1,8 @@
 import '../model/productModel.js';
-import {addProduct, showProduct, findProduct, searchDessert, showCategories, ascendingOrder, descendingOrder, ascendingPrice, descendingPrice, addToCart, findMyCart, increaseQuantity, decreaseQuantity, removeFromCart, cartSaveOnCheckout, addToFavs, findFavs, removeFromFavs, cartSaveOnLogout} from '../service/productService.js';
+import {addProduct, showProduct, findProduct, searchDessert, showCategories, ascendingOrder, descendingOrder, ascendingPrice, descendingPrice, addToCart, findMyCart, increaseQuantity, decreaseQuantity, removeFromCart, cartSaveOnCheckout, addToFavs, findFavs, removeFromFavs, cartSaveOnLogout, deleteAllProducts} from '../service/productService.js';
 import { NO_PRODUCTS, MISSING_PARAMETER, PRODUCT_NOT_FOUND, NO_CATEGORIES, NOT_SORTED, NOT_REMOVED_FROM_CART, NO_INCREMENT, NO_DECREMENT, EMPTY_CART, NO_FAVS, NOT_REMOVED_FROM_FAVS, NOT_ADDED_TO_FAVS } from '../message/messages.js';
 import { errorResponse, successResponse } from '../response/response.js';
-// import {process.env.STRIPE_SECRET_KEY} from 'stripe';
+import Stripe from 'stripe';
 
 const createProduct = async(req, res) => {
     try{
@@ -319,10 +319,46 @@ const saveOnLogout = async(req, res) => {
 const makePayment = async(req, res) => {
     try{
         const {products} = req.body;
-        console.log(products);
-    }catch(error){
 
+        const lineItems = products.map((product) => ({
+            price_data : {
+                currency : "inr",
+                product_data : {
+                    name: product.productDetails[0].dessertName,
+                    images : [product.productDetails[0].image.filename],
+                },
+                unit_amount : Math.round(product.price*100),
+            },
+            quantity : product.quantity,
+        }))
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            line_items: lineItems,
+            mode : "payment",
+            success_url : `${process.env.VITE_FRONTEND_URL}/successPayment`,
+            cancel_url : `${process.env.VITE_FRONTEND_URL}/failedPayment`,
+        })
+
+        return successResponse(res, {id:session.id}, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message); 
     }
 }
 
-export {createProduct, displayProduct, getProduct, searchProduct, getCategory, sortProductsAscending, sortProductsDescending, sortPriceAscending, sortPriceDescending, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, checkout, addToFav, getFavs, deleteFromFavs, saveOnLogout, makePayment};
+const deleteItemsOnPayment = async(req, res) => {
+    try{
+        const username = req.query.username;
+        const allProducts = await deleteAllProducts(username);
+
+        if(!allProducts){
+            return errorResponse(res, "", 400, NO_PRODUCTS);
+        }
+        return successResponse(res, allProducts, 200);
+    }catch(error){
+        return errorResponse(res, "", 500, error.message); 
+    }
+}
+
+export {createProduct, displayProduct, getProduct, searchProduct, getCategory, sortProductsAscending, sortProductsDescending, sortPriceAscending, sortPriceDescending, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, checkout, addToFav, getFavs, deleteFromFavs, saveOnLogout, makePayment, deleteItemsOnPayment};

@@ -243,4 +243,11 @@ const cartSaveOnLogout = async(username, productId, quantity, price, totalPrice)
 
 }
 
-export {addProduct, showProduct, findProduct, searchDessert, showCategories, ascendingOrder, descendingOrder, ascendingPrice, descendingPrice, addToCart, findMyCart, increaseQuantity, decreaseQuantity, cartSaveOnCheckout, removeFromCart, addToFavs, findFavs, removeFromFavs, cartSaveOnLogout};
+const deleteAllProducts = async(username) => {
+    const [deleteAllCartItemsOfUsername, deleteAllSavedCartItemsOfUsername] = await Promise.all( [ CartProduct.deleteMany({username: username}),  SavedCartProduct.deleteMany({username: username})])
+    return { deleteCart : deleteAllCartItemsOfUsername,
+        deleteSavedCart : deleteAllSavedCartItemsOfUsername,
+        };
+}
+
+export {addProduct, showProduct, findProduct, searchDessert, showCategories, ascendingOrder, descendingOrder, ascendingPrice, descendingPrice, addToCart, findMyCart, increaseQuantity, decreaseQuantity, cartSaveOnCheckout, removeFromCart, addToFavs, findFavs, removeFromFavs, cartSaveOnLogout, deleteAllProducts};

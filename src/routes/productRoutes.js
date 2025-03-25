@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 // import {upload} from '../index.js';
-import {createProduct , displayProduct, getProduct, searchProduct, getCategory, sortProductsAscending, sortProductsDescending, sortPriceAscending, sortPriceDescending, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, addToFav, getFavs, checkout, deleteFromFavs, saveOnLogout, makePayment} from '../controller/productController.js';
+import {createProduct , displayProduct, getProduct, searchProduct, getCategory, sortProductsAscending, sortProductsDescending, sortPriceAscending, sortPriceDescending, addToMyCart, showCart, incrementProductCart, decrementProductCart, deleteFromCart, addToFav, getFavs, checkout, deleteFromFavs, saveOnLogout, makePayment, deleteItemsOnPayment} from '../controller/productController.js';
 import {verifyTokenMiddleware} from '../middleware/middleware.js';
 // import {uploadImageHelper} from '../middleware/uploadImage.js';
 import {uploadProduct} from '../middleware/uploadImage.js';
@@ -28,5 +28,6 @@ router.post('/checkout',verifyTokenMiddleware, checkout);
 router.delete('/deleteFromFavs',verifyTokenMiddleware, deleteFromFavs);
 router.post('/saveOnLogout', verifyTokenMiddleware, saveOnLogout)
 router.post('/makePayment', verifyTokenMiddleware, makePayment);
+router.delete('/deleteItemsOnPayment', verifyTokenMiddleware, deleteItemsOnPayment);
 
 export default router;

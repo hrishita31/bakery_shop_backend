@@ -26,6 +26,7 @@ const favProductSchema = new mongoose.Schema(
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
         dessertName: { type: String },
         price:{type:String},
+        image : {type:String},
     }
 );
 

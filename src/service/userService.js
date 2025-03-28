@@ -1,4 +1,5 @@
-import {User, UserAddress, UserProfile, ConnectWithUs} from '../model/userModel.js';
+import {User, UserAddress, UserProfile, ConnectWithUs, OrderHistory} from '../model/userModel.js';
+import { Product } from '../model/productModel.js';
 import {ENTER_NEW_USERNAME} from '../message/messages.js';
 
 const addUser = async (username, userData) => {
@@ -12,12 +13,10 @@ const addUser = async (username, userData) => {
 
     if(userExists.length >= 1){
         const user = await new User({...userData, isAdmin : false})
-        console.log(user)
         return await user.save();
     }else{
 
     const user = await new User({...userData, isAdmin:true});
-    console.log(user)
     return await user.save();
     }
 };
@@ -81,4 +80,21 @@ const newConnection = async(connectData) => {
     return await userConnect.save();
 }
 
-export { addUser, findUserByUsername, validateUser, findDecodedUser,  updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin, checkProfile, addProfile, newConnection};
+
+const orderHistory = async(username, orderId, products) => {
+    const newOrder = new OrderHistory({
+        username,
+        orderId,
+        products,
+    });
+
+    const savedOrder = await newOrder.save();
+return savedOrder;
+}
+
+const viewOrderHistory = async(username) => {
+    const orders = await OrderHistory.find({ username }).populate("products.productId").sort({createdAt : -1});
+    return orders;
+}
+
+export { addUser, findUserByUsername, validateUser, findDecodedUser,  updatePassword, addAddress, findAddress, checkAddressExists, updateAddress, addressToBin, checkProfile, addProfile, newConnection, orderHistory, viewOrderHistory};

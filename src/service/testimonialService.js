@@ -1,10 +1,10 @@
 import Testimony from '../model/testimonialModel.js';
-import { SavedCartProduct } from '../model/productModel.js';
+// import { SavedCartProduct } from '../model/productModel.js';
 
-const userPurchase = async(username) => {
-    const productPurchase = await SavedCartProduct.find({ username });
-    return productPurchase.length;
-}
+// const userPurchase = async(username) => {
+//     const productPurchase = await SavedCartProduct.find({ username });
+//     return productPurchase.length;
+// }
 
 const addTestimony = async(testimonyData) => {
     const testimony = new Testimony(testimonyData);
@@ -16,4 +16,4 @@ const showTestimony = async() => {
             return testimonyList;
 }
 
-export {userPurchase, addTestimony, showTestimony};
+export { addTestimony, showTestimony};

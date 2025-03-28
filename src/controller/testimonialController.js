@@ -1,6 +1,6 @@
 import { MISSING_PARAMETER, NO_TESTIMONY } from '../message/messages.js';
 import '../model/testimonialModel.js';
-import { addTestimony, showTestimony, userPurchase } from '../service/testimonialService.js';
+import { addTestimony, showTestimony } from '../service/testimonialService.js';
 import { successResponse, errorResponse } from '../response/response.js';
 
 const newTestimony = async(req, res) => {
@@ -10,10 +10,10 @@ const newTestimony = async(req, res) => {
             return errorResponse(res, "", 404, MISSING_PARAMETER)
         }
 
-        const hasPurchased = await userPurchase(username);
-        if(hasPurchased<1){
-            return errorResponse(res, "", 404, "has to purchase product to give testimony")
-        }
+        // const hasPurchased = await userPurchase(username);
+        // if(hasPurchased<1){
+        //     return errorResponse(res, "", 404, "has to purchase product to give testimony")
+        // }
 
         const image = req.file ? {filename:req.file.filename, path:req.file.path, createdAt : Date.now()}:null;
         if(!image){

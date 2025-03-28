@@ -200,13 +200,15 @@ const addToFavs = async(username, productId) => {
     if(!product){
         throw new Error(PRODUCT_NOT_FOUND);
     }
+    console.log(product, 846);
 
     const existingFav = await FavProduct.findOne({username, productId});
     if(existingFav){
         throw new Error(ALREADY_IN_FAVS);
     }
+    console.log(existingFav, 134)
 
-    const newFav = new FavProduct({username, productId:product._id, dessertName:product.dessertName, price:product.price});
+    const newFav = new FavProduct({username, productId:product._id, dessertName:product.dessertName, price:product.price, image:product.image.filename});
     await newFav.save();
     return product;
 };

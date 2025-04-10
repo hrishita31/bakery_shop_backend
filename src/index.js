@@ -34,6 +34,13 @@ mongoose.connect('mongodb://localhost:27017/bakery_shop')
   .then(() => console.log("Connected to MongoDB (bakery_shop)"))
   .catch(err => console.error("Database connection error:", err));
 
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  console.log('MongoDB connection closed due to app termination');
+  process.exit(0);
+});
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
